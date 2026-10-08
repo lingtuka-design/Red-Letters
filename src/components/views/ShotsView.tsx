@@ -71,17 +71,17 @@ export const ShotsView: React.FC<ShotsViewProps> = ({
   return (
     <div className="h-full flex flex-col overflow-hidden bg-[#fcfaf6]">
       {/* Shots Control Bar */}
-      <div className="h-16 border-b border-[#e9e3d8] bg-white px-6 flex items-center justify-between shrink-0">
-        <div className="flex items-center space-x-3">
+      <div className="min-h-16 border-b border-[#e9e3d8] bg-white px-3 sm:px-6 py-2.5 flex flex-wrap sm:flex-nowrap items-center justify-between gap-2 shrink-0">
+        <div className="flex items-center space-x-2 sm:space-x-3 flex-wrap gap-y-2">
           {/* Search */}
           <div className="relative">
             <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-stone-400" />
             <input 
               type="text" 
-              placeholder="Search shot code or title..." 
+              placeholder="Search shot..." 
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9 pr-3 py-1.5 text-xs rounded-lg border border-[#e9e3d8] bg-[#fcfaf6] text-stone-800 placeholder-stone-400 focus:outline-none focus:ring-1 focus:ring-amber-500 w-44 md:w-60"
+              className="pl-9 pr-3 py-1.5 text-xs rounded-lg border border-[#e9e3d8] bg-[#fcfaf6] text-stone-800 placeholder-stone-400 focus:outline-none focus:ring-1 focus:ring-amber-500 w-32 xs:w-40 sm:w-48 md:w-60"
             />
           </div>
 
@@ -89,7 +89,7 @@ export const ShotsView: React.FC<ShotsViewProps> = ({
           <select
             value={filterAssignee}
             onChange={(e) => setFilterAssignee(e.target.value)}
-            className="text-xs py-1.5 px-2.5 rounded-lg border border-[#e9e3d8] bg-white text-stone-700"
+            className="text-xs py-1.5 px-2 rounded-lg border border-[#e9e3d8] bg-white text-stone-700 max-w-[110px] sm:max-w-none"
           >
             <option value="all">All Assignees</option>
             {team.map(m => (
@@ -112,7 +112,7 @@ export const ShotsView: React.FC<ShotsViewProps> = ({
         </div>
 
         {/* View Switcher & Action */}
-        <div className="flex items-center space-x-3">
+        <div className="flex items-center space-x-2 sm:space-x-3 shrink-0">
           <div className="flex items-center p-1 rounded-lg bg-stone-100 border border-stone-200/60">
             <button
               onClick={() => setViewMode('kanban')}
@@ -136,16 +136,16 @@ export const ShotsView: React.FC<ShotsViewProps> = ({
 
           <button
             onClick={onOpenNewShot}
-            className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-xs font-medium transition-colors shadow-xs"
+            className="inline-flex items-center space-x-1 sm:space-x-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-xs font-medium transition-colors shadow-xs cursor-pointer"
           >
-            <Plus className="w-3.5 h-3.5" />
-            <span>Add Shot</span>
+            <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
+            <span className="hidden xs:inline">Add Shot</span>
           </button>
         </div>
       </div>
 
       {/* Main Board or Table */}
-      <div className="flex-1 overflow-x-auto overflow-y-hidden p-6">
+      <div className="flex-1 overflow-x-auto overflow-y-hidden p-3 sm:p-6">
         {viewMode === 'kanban' ? (
           /* Kanban Board */
           <div className="flex space-x-4 h-full min-w-max pb-2">

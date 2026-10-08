@@ -187,10 +187,10 @@ export const StoryboardView: React.FC<StoryboardViewProps> = ({
   return (
     <div className="h-full flex flex-col overflow-hidden bg-[#fcfaf6]">
       {/* 1. Top Bar: Title, Counts, Auto-save status, Actions */}
-      <div className="h-14 border-b border-[#e9e3d8] bg-white px-6 flex items-center justify-between shrink-0">
-        <div className="flex items-center space-x-3">
+      <div className="min-h-14 border-b border-[#e9e3d8] bg-white px-3 sm:px-6 py-2 flex flex-wrap sm:flex-nowrap items-center justify-between gap-2 shrink-0">
+        <div className="flex items-center space-x-2.5 sm:space-x-3">
           <div className="flex items-center space-x-2">
-            <div className="w-7 h-7 rounded-lg bg-amber-100 flex items-center justify-center text-amber-800">
+            <div className="w-7 h-7 rounded-lg bg-amber-100 flex items-center justify-center text-amber-800 shrink-0">
               <FileText className="w-4 h-4 text-amber-700" />
             </div>
             <div>
@@ -235,7 +235,7 @@ export const StoryboardView: React.FC<StoryboardViewProps> = ({
       </div>
 
       {/* 2. Rich Text Formatting Toolbar & Storyboard Tag Shortcuts */}
-      <div className="border-b border-[#e9e3d8] bg-white/80 backdrop-blur-xs px-6 py-2 flex flex-wrap items-center justify-between gap-2 shrink-0">
+      <div className="border-b border-[#e9e3d8] bg-white/80 backdrop-blur-xs px-3 sm:px-6 py-2 flex flex-wrap items-center justify-between gap-1.5 shrink-0">
         {/* Rich Text Format Controls */}
         <div className="flex items-center space-x-1 flex-wrap">
           {/* Paragraph Style Selector */}
@@ -394,8 +394,8 @@ export const StoryboardView: React.FC<StoryboardViewProps> = ({
       </div>
 
       {/* 3. Editor Viewport (Single Continuous Document Page) */}
-      <div className="flex-1 overflow-y-auto p-4 sm:p-8 md:p-10 flex justify-center bg-[#fcfaf6]">
-        <div className="w-full max-w-4xl bg-white rounded-2xl shadow-sm border border-[#e9e3d8] p-8 sm:p-12 md:p-16 min-h-[800px] flex flex-col">
+      <div className="flex-1 overflow-y-auto p-2 sm:p-6 md:p-10 flex justify-center bg-[#fcfaf6]">
+        <div className="w-full max-w-4xl bg-white rounded-2xl shadow-sm border border-[#e9e3d8] p-4 sm:p-10 md:p-16 min-h-[500px] flex flex-col">
           {/* Document Header info */}
           <div className="mb-6 pb-4 border-b border-dashed border-[#e9e3d8] flex flex-wrap items-center justify-between text-xs text-stone-400 gap-2">
             <div className="flex items-center space-x-2">

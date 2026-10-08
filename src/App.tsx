@@ -48,7 +48,8 @@ export function App() {
   
   // Selected context for Right Panel Inspector
   const [selectedShot, setSelectedShot] = useState<Shot | null>(null);
-  const [isInspectorOpen, setIsInspectorOpen] = useState(true);
+  const [isInspectorOpen, setIsInspectorOpen] = useState(() => typeof window !== 'undefined' ? window.innerWidth >= 1280 : false);
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
   // Modals
   const [isNewShotModalOpen, setIsNewShotModalOpen] = useState(false);
@@ -218,11 +219,12 @@ export function App() {
         onOpenNewShot={() => setIsNewShotModalOpen(true)}
         onOpenExport={() => setIsExportModalOpen(true)}
         onBackToProjectHub={() => setActiveModule('hub')}
+        onToggleMobileSidebar={() => setIsMobileSidebarOpen(prev => !prev)}
         selectedShot={selectedShot}
       />
 
       {/* 3-Panel Studio Layout */}
-      <div className="flex-1 flex overflow-hidden">
+      <div className="flex-1 flex overflow-hidden relative">
         {/* Left Panel: Studio Overview, Team Room & Vertical Projects List */}
         <Sidebar
           currentNav={currentNav}
@@ -234,6 +236,8 @@ export function App() {
           onSelectProject={handleSelectProject}
           onOpenNewProject={() => setIsNewProjectModalOpen(true)}
           onDeleteProject={handleDeleteProject}
+          isOpenMobile={isMobileSidebarOpen}
+          onCloseMobile={() => setIsMobileSidebarOpen(false)}
         />
 
         {/* Center Panel: Active Workspace Canvas */}

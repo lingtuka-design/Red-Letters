@@ -36,43 +36,57 @@ export const Inspector: React.FC<InspectorProps> = ({
 
   if (!selectedShot) {
     return (
-      <aside className="w-80 lg:w-96 border-l border-[#e9e3d8] bg-[#fcfaf6] p-6 flex flex-col justify-between shrink-0 h-full overflow-y-auto">
-        <div>
-          <div className="flex items-center justify-between pb-4 border-b border-[#e9e3d8]">
-            <span className="text-xs font-semibold uppercase tracking-wider text-stone-500">
-              Studio Inspector
-            </span>
-          </div>
-
-          <div className="mt-12 text-center px-4">
-            <div className="w-12 h-12 rounded-2xl bg-amber-50 border border-amber-200/70 text-amber-700 mx-auto flex items-center justify-center mb-4">
-              <Film className="w-6 h-6 stroke-[1.5]" />
+      <>
+        {/* Mobile Backdrop */}
+        <div 
+          className="fixed inset-0 bg-black/40 backdrop-blur-xs z-40 md:hidden"
+          onClick={onClose} 
+        />
+        <aside className="fixed inset-y-0 right-0 z-50 w-full sm:w-80 md:static md:z-auto md:w-80 lg:w-96 border-l border-[#e9e3d8] bg-[#fcfaf6] p-6 flex flex-col justify-between shrink-0 h-full overflow-y-auto shadow-2xl md:shadow-none">
+          <div>
+            <div className="flex items-center justify-between pb-4 border-b border-[#e9e3d8]">
+              <span className="text-xs font-semibold uppercase tracking-wider text-stone-500">
+                Studio Inspector
+              </span>
+              <button
+                onClick={onClose}
+                className="p-1 rounded-lg hover:bg-stone-200/70 text-stone-400 hover:text-stone-700 transition-colors cursor-pointer"
+                title="Close Inspector"
+              >
+                <X className="w-4 h-4" />
+              </button>
             </div>
-            <h3 className="font-serif text-base font-semibold text-stone-900 mb-1">
-              Select an Asset or Shot
-            </h3>
-            <p className="text-xs text-stone-500 leading-relaxed max-w-xs mx-auto">
-              Click any shot, storyboard frame, audio take, or render version to inspect camera cuts, frame pacing, assignees, and revision histories.
-            </p>
-          </div>
 
-          <div className="mt-12 p-4 rounded-xl bg-white border border-[#e9e3d8] shadow-xs">
-            <div className="flex items-center space-x-2 text-xs font-semibold text-stone-700 mb-2">
-              <Sparkles className="w-4 h-4 text-amber-600" />
-              <span>Indie Team Guidelines</span>
+            <div className="mt-12 text-center px-4">
+              <div className="w-12 h-12 rounded-2xl bg-amber-50 border border-amber-200/70 text-amber-700 mx-auto flex items-center justify-center mb-4">
+                <Film className="w-6 h-6 stroke-[1.5]" />
+              </div>
+              <h3 className="font-serif text-base font-semibold text-stone-900 mb-1">
+                Select an Asset or Shot
+              </h3>
+              <p className="text-xs text-stone-500 leading-relaxed max-w-xs mx-auto">
+                Click any shot, storyboard frame, audio take, or render version to inspect camera cuts, frame pacing, assignees, and revision histories.
+              </p>
             </div>
-            <ul className="text-xs text-stone-500 space-y-2 list-disc list-inside">
-              <li>24fps cine standard locked for all keyframe timing.</li>
-              <li>Renders output in 4K DCI anamorphic crop.</li>
-              <li>Sound takes synced to frame 1 of each beat.</li>
-            </ul>
-          </div>
-        </div>
 
-        <div className="p-3 rounded-lg bg-stone-100 text-stone-500 text-[11px] text-center">
-          Cloudflare D1 SQLite & R2 Edge connected
-        </div>
-      </aside>
+            <div className="mt-12 p-4 rounded-xl bg-white border border-[#e9e3d8] shadow-xs">
+              <div className="flex items-center space-x-2 text-xs font-semibold text-stone-700 mb-2">
+                <Sparkles className="w-4 h-4 text-amber-600" />
+                <span>Indie Team Guidelines</span>
+              </div>
+              <ul className="text-xs text-stone-500 space-y-2 list-disc list-inside">
+                <li>24fps cine standard locked for all keyframe timing.</li>
+                <li>Renders output in 4K DCI anamorphic crop.</li>
+                <li>Sound takes synced to frame 1 of each beat.</li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="p-3 rounded-lg bg-stone-100 text-stone-500 text-[11px] text-center">
+            Cloudflare D1 SQLite & R2 Edge connected
+          </div>
+        </aside>
+      </>
     );
   }
 
@@ -87,24 +101,31 @@ export const Inspector: React.FC<InspectorProps> = ({
   };
 
   return (
-    <aside className="w-80 lg:w-96 border-l border-[#e9e3d8] bg-white flex flex-col shrink-0 h-full overflow-y-auto">
-      {/* Header */}
-      <div className="p-4 border-b border-[#e9e3d8] flex items-center justify-between bg-[#fcfaf6]">
-        <div className="flex items-center space-x-2">
-          <span className="font-mono text-xs font-bold px-2 py-0.5 rounded bg-stone-200 text-stone-800">
-            {selectedShot.code}
-          </span>
-          <span className="text-xs text-stone-500 truncate max-w-[130px]">
-            {selectedShot.title}
-          </span>
+    <>
+      {/* Mobile Backdrop */}
+      <div 
+        className="fixed inset-0 bg-black/40 backdrop-blur-xs z-40 md:hidden"
+        onClick={onClose} 
+      />
+      <aside className="fixed inset-y-0 right-0 z-50 w-full sm:w-80 md:static md:z-auto md:w-80 lg:w-96 border-l border-[#e9e3d8] bg-white flex flex-col shrink-0 h-full overflow-y-auto shadow-2xl md:shadow-none">
+        {/* Header */}
+        <div className="p-4 border-b border-[#e9e3d8] flex items-center justify-between bg-[#fcfaf6]">
+          <div className="flex items-center space-x-2">
+            <span className="font-mono text-xs font-bold px-2 py-0.5 rounded bg-stone-200 text-stone-800">
+              {selectedShot.code}
+            </span>
+            <span className="text-xs text-stone-500 truncate max-w-[130px]">
+              {selectedShot.title}
+            </span>
+          </div>
+          <button
+            onClick={onClose}
+            className="p-1 rounded-lg hover:bg-stone-200/70 text-stone-400 hover:text-stone-700 transition-colors cursor-pointer"
+            title="Close Inspector"
+          >
+            <X className="w-4 h-4" />
+          </button>
         </div>
-        <button
-          onClick={onClose}
-          className="p-1 rounded-lg hover:bg-stone-200/70 text-stone-400 hover:text-stone-700 transition-colors"
-        >
-          <X className="w-4 h-4" />
-        </button>
-      </div>
 
       <div className="p-5 space-y-6 flex-1 overflow-y-auto">
         {/* Thumbnail Preview */}
@@ -235,5 +256,6 @@ export const Inspector: React.FC<InspectorProps> = ({
         </div>
       </div>
     </aside>
+  </>
   );
 };

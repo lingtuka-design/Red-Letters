@@ -63,7 +63,7 @@ export const TeamChatView: React.FC<TeamChatViewProps> = ({
       </div>
 
       {/* Message Feed */}
-      <div className="flex-1 overflow-y-auto p-6 md:p-8 space-y-5 max-w-4xl mx-auto w-full">
+      <div className="flex-1 overflow-y-auto p-3 sm:p-6 md:p-8 space-y-4 sm:space-y-5 max-w-4xl mx-auto w-full">
         {messages.map((msg) => {
           const author = team.find(m => m.id === msg.authorId);
           const referencedShot = msg.shotRefId ? shots.find(s => s.id === msg.shotRefId) : null;
@@ -118,14 +118,14 @@ export const TeamChatView: React.FC<TeamChatViewProps> = ({
       </div>
 
       {/* Input Bar */}
-      <form onSubmit={handleSend} className="p-4 border-t border-[#e9e3d8] bg-white max-w-4xl mx-auto w-full">
+      <form onSubmit={handleSend} className="p-3 sm:p-4 border-t border-[#e9e3d8] bg-white max-w-4xl mx-auto w-full">
         {selectedShotRef && (
           <div className="mb-2 flex items-center space-x-2 text-xs text-amber-800 bg-amber-50 px-3 py-1 rounded-lg border border-amber-200">
             <span>Tagging Shot: <strong>{shots.find(s => s.id === selectedShotRef)?.code}</strong></span>
             <button 
               type="button" 
               onClick={() => setSelectedShotRef('')} 
-              className="text-stone-400 hover:text-stone-700"
+              className="text-stone-400 hover:text-stone-700 cursor-pointer"
             >
               ×
             </button>
@@ -137,7 +137,7 @@ export const TeamChatView: React.FC<TeamChatViewProps> = ({
           <select
             value={selectedShotRef}
             onChange={(e) => setSelectedShotRef(e.target.value)}
-            className="text-xs py-2 px-2 rounded-lg border border-[#e9e3d8] bg-[#fcfaf6] text-stone-600 focus:outline-none"
+            className="hidden sm:inline-block text-xs py-2 px-2 rounded-lg border border-[#e9e3d8] bg-[#fcfaf6] text-stone-600 focus:outline-none"
           >
             <option value=""># Link Shot...</option>
             {shots.map(s => (

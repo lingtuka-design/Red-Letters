@@ -5,7 +5,8 @@ import {
   Film, 
   Plus, 
   Users,
-  Trash2
+  Trash2,
+  X
 } from 'lucide-react';
 import type { MainNavigation, Project, TeamMember } from '../types';
 
@@ -20,6 +21,8 @@ interface SidebarProps {
   onOpenNewProject: () => void;
   onDeleteProject: (projectId: string) => void;
   unreadCount?: number;
+  isOpenMobile?: boolean;
+  onCloseMobile?: () => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -32,20 +35,72 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onSelectProject,
   onOpenNewProject,
   onDeleteProject,
-  unreadCount = 2
+  unreadCount = 2,
+  isOpenMobile = false,
+  onCloseMobile
 }) => {
+  const handleOverview = () => {
+    onSelectStudioOverview();
+    onCloseMobile?.();
+  };
+
+  const handleChat = () => {
+    onSelectTeamChat();
+    onCloseMobile?.();
+  };
+
+  const handleProject = (id: string) => {
+    onSelectProject(id);
+    onCloseMobile?.();
+  };
+
+  const handleNewProject = () => {
+    onOpenNewProject();
+    onCloseMobile?.();
+  };
+
   return (
-    <aside className="w-64 lg:w-72 border-r border-[#e9e3d8] bg-[#fcfaf6] flex flex-col justify-between shrink-0 h-full select-none">
-      <div className="p-4 space-y-6 overflow-y-auto">
-        {/* Top Studio Tools */}
-        <div className="space-y-1">
-          <div className="px-2 mb-2 text-[10px] font-bold uppercase tracking-wider text-stone-400">
-            Studio Core
+    <>
+      {/* Mobile Backdrop Overlay */}
+      {isOpenMobile && (
+        <div 
+          className="fixed inset-0 bg-black/50 backdrop-blur-xs z-40 md:hidden transition-opacity"
+          onClick={onCloseMobile}
+        />
+      )}
+
+      <aside className={`fixed inset-y-0 left-0 z-50 w-72 max-w-[85vw] border-r border-[#e9e3d8] bg-[#fcfaf6] flex flex-col justify-between shrink-0 h-full select-none shadow-2xl transition-transform duration-300 ease-in-out md:static md:translate-x-0 md:shadow-none md:w-64 lg:w-72 ${
+        isOpenMobile ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
+      }`}>
+        {/* Mobile Header with Close Button */}
+        <div className="flex md:hidden items-center justify-between p-3.5 border-b border-[#e9e3d8] bg-white">
+          <div className="flex items-center space-x-2">
+            <div className="w-6 h-6 rounded-lg bg-amber-600 flex items-center justify-center text-white text-xs font-bold">
+              RL
+            </div>
+            <span className="font-serif italic font-semibold text-stone-900 text-sm">
+              Red Letters Studio
+            </span>
           </div>
+          <button
+            onClick={onCloseMobile}
+            className="p-1.5 rounded-lg text-stone-400 hover:text-stone-700 hover:bg-stone-100 transition-colors cursor-pointer"
+            title="Close navigation"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        <div className="p-4 space-y-6 overflow-y-auto flex-1">
+          {/* Top Studio Tools */}
+          <div className="space-y-1">
+            <div className="px-2 mb-2 text-[10px] font-bold uppercase tracking-wider text-stone-400">
+              Studio Core
+            </div>
 
           {/* 1. Studio Overview */}
           <button
-            onClick={onSelectStudioOverview}
+            onClick={handleOverview}
             className={`w-full text-left px-3 py-2.5 rounded-xl transition-all flex items-center justify-between group ${
               currentNav === 'studio_overview'
                 ? 'bg-white text-stone-900 border border-[#e9e3d8] shadow-xs'
@@ -69,7 +124,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
           {/* 2. Team Collab Room */}
           <button
-            onClick={onSelectTeamChat}
+            onClick={handleChat}
             className={`w-full text-left px-3 py-2.5 rounded-xl transition-all flex items-center justify-between group ${
               currentNav === 'team_chat'
                 ? 'bg-white text-stone-900 border border-[#e9e3d8] shadow-xs'
@@ -108,7 +163,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
           {/* Dedicated "Create Project" Button right above the projects */}
           <button
-            onClick={onOpenNewProject}
+            onClick={handleNewProject}
             className="w-full mb-3 py-2 px-3 rounded-xl border border-dashed border-amber-300 bg-amber-50/70 hover:bg-amber-100/80 hover:border-amber-400 text-amber-900 text-xs font-semibold flex items-center justify-center space-x-2 transition-all shadow-2xs group cursor-pointer"
           >
             <Plus className="w-3.5 h-3.5 text-amber-700 group-hover:scale-110 transition-transform stroke-[2.5]" />
@@ -128,7 +183,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                       ? 'bg-white border border-amber-300 ring-2 ring-amber-100/60 shadow-xs'
                       : 'border border-transparent hover:bg-white/80 hover:border-[#e9e3d8]'
                   }`}
-                  onClick={() => onSelectProject(proj.id)}
+                  onClick={() => handleProject(proj.id)}
                 >
                   <div className="relative mt-0.5 shrink-0">
                     {proj.coverImage ? (
@@ -236,5 +291,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </div>
       </div>
     </aside>
+    </>
   );
 };
