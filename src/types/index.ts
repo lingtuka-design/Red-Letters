@@ -42,7 +42,8 @@ export interface ScriptScene {
   slugline: string;
   synopsis: string;
   estimatedDurationSec: number;
-  elements: {
+  contentHtml?: string;
+  elements?: {
     type: 'slugline' | 'action' | 'character' | 'dialogue' | 'parenthetical' | 'transition';
     text: string;
     character?: string;
