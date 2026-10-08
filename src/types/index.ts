@@ -53,6 +53,7 @@ export interface Project {
   status: 'Pre-Production' | 'Production' | 'Post-Production' | 'Final Polish' | 'Approved';
   deadline: string;
   targetDurationSec: number;
+  targetDurationMin?: number;
   coverImage?: string;
   accentColor?: string;
   createdBy: string;

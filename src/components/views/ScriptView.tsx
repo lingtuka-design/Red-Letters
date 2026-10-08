@@ -205,7 +205,7 @@ export const ScriptView: React.FC<ScriptViewProps> = ({
       'RED LETTERS STUDIO — SCREENPLAY PRODUCTION DRAFT',
       `PROJECT: ${project.title.toUpperCase()}`,
       `Created By: ${project.createdByName || project.createdBy}`,
-      `FPS: ${project.fps} | Target Duration: ${project.targetDurationSec}s`,
+      `FPS: ${project.fps} | Target Duration: ${project.targetDurationMin ? `${project.targetDurationMin} mins` : `${(project.targetDurationSec / 60).toFixed(1)} mins`}`,
       `Status: ${project.status}`,
       `Approvals: ${approvalCount}/3 Approved (Maltea: ${approvals.maltea ? 'YES' : 'NO'}, Valtea: ${approvals.valtea ? 'YES' : 'NO'}, Biaktea: ${approvals.biaktea ? 'YES' : 'NO'})`,
       '======================================================================\n'

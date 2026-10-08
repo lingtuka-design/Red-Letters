@@ -132,6 +132,9 @@ export const ProjectHubView: React.FC<ProjectHubViewProps> = ({
             <span className="text-xs text-stone-500 font-mono px-2 py-0.5 rounded bg-white border border-[#e9e3d8]">
               {project.resolution}
             </span>
+            <span className="text-xs text-stone-500 font-mono px-2 py-0.5 rounded bg-white border border-[#e9e3d8]">
+              {project.targetDurationMin ? `${project.targetDurationMin} mins` : `${(project.targetDurationSec / 60).toFixed(1)} mins`}
+            </span>
             <span className="flex items-center text-xs text-stone-600 font-medium ml-2">
               <Calendar className="w-3.5 h-3.5 mr-1 text-stone-400" />
               Target: {project.deadline}
