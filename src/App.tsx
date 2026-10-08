@@ -235,11 +235,14 @@ export function App() {
                 <ProjectHubView
                   project={activeProject}
                   shots={shots}
-                  scenes={scenes}
-                  storyboards={storyboards}
-                  audioTakes={audioTakes}
-                  renders={renders}
+                  team={team}
+                  chatMessages={chatMessages}
                   onOpenModule={(mod) => setActiveModule(mod)}
+                  onSendMessage={handleSendMessage}
+                  onSelectShot={(shot) => {
+                    handleSelectShot(shot);
+                    setActiveModule('shots');
+                  }}
                 />
               )}
 

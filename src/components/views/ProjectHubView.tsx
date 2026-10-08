@@ -1,11 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import type { 
   Project, 
   Shot, 
-  ScriptScene, 
-  StoryboardFrame, 
-  AudioTake, 
-  RenderFile, 
+  TeamMember,
+  ChatMessage,
   ProjectModule 
 } from '../../types';
 import { 
@@ -15,40 +13,94 @@ import {
   Mic2, 
   Video, 
   ArrowRight, 
-  Calendar 
+  Calendar, 
+  MessageSquare,
+  Send
 } from 'lucide-react';
 
 interface ProjectHubViewProps {
   project: Project;
   shots: Shot[];
-  scenes: ScriptScene[];
-  storyboards: StoryboardFrame[];
-  audioTakes: AudioTake[];
-  renders: RenderFile[];
+  team: TeamMember[];
+  chatMessages: ChatMessage[];
   onOpenModule: (module: ProjectModule) => void;
+  onSendMessage: (authorId: string, message: string, shotRefId?: string) => void;
+  onSelectShot?: (shot: Shot) => void;
 }
 
 export const ProjectHubView: React.FC<ProjectHubViewProps> = ({
   project,
   shots,
-  scenes,
-  storyboards,
-  audioTakes,
-  renders,
-  onOpenModule
+  team,
+  chatMessages,
+  onOpenModule,
+  onSendMessage,
+  onSelectShot
 }) => {
-  const approvedShots = shots.filter(s => s.stage === 'Approved').length;
-  const inProgressShots = shots.filter(s => s.stage !== 'Approved' && s.stage !== 'Script').length;
-  const totalFrames = shots.reduce((acc, s) => acc + (s.endFrame - s.startFrame + 1), 0);
-  const totalDurationSec = (totalFrames / project.fps).toFixed(1);
-  const completionPct = shots.length > 0 ? Math.round((approvedShots / shots.length) * 100) : 0;
+  const [chatInput, setChatInput] = useState('');
+  const [selectedShotRef, setSelectedShotRef] = useState<string>('');
+
+  const currentMember = team[0]; // Sarah Vance (Director)
+
+  const handleSendChat = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!chatInput.trim()) return;
+
+    onSendMessage(currentMember.id, chatInput.trim(), selectedShotRef || undefined);
+    setChatInput('');
+    setSelectedShotRef('');
+  };
+
+  // Filter messages for this project (or general project messages)
+  const projectMessages = chatMessages.filter(
+    m => m.projectId === project.id || m.projectId === 'proj_aura_01'
+  );
+
+  // 5 Clean Minimalist Modules (Text & Icon chauh, a chhung content rawn lang lo)
+  const modules = [
+    {
+      id: 'script' as ProjectModule,
+      title: 'Screenplay & Script',
+      icon: ScrollText,
+      badge: 'Screenplay',
+      color: 'amber'
+    },
+    {
+      id: 'storyboard' as ProjectModule,
+      title: 'Storyboard Studio',
+      icon: Film,
+      badge: 'Visuals',
+      color: 'amber'
+    },
+    {
+      id: 'shots' as ProjectModule,
+      title: 'Animation Shots',
+      icon: Kanban,
+      badge: 'Pipeline',
+      color: 'amber'
+    },
+    {
+      id: 'audio' as ProjectModule,
+      title: 'Voice & Audio Lab',
+      icon: Mic2,
+      badge: 'Sound',
+      color: 'amber'
+    },
+    {
+      id: 'renders' as ProjectModule,
+      title: 'Renders & Review',
+      icon: Video,
+      badge: 'Master',
+      color: 'amber'
+    }
+  ];
 
   return (
-    <div className="flex-1 overflow-y-auto p-6 md:p-8 space-y-8 max-w-7xl mx-auto">
-      {/* Project Banner & Metadata */}
-      <div className="relative overflow-hidden rounded-2xl border border-[#e9e3d8] bg-gradient-to-br from-white via-[#fcfaf6] to-[#f6efe3] p-6 md:p-8 shadow-xs">
-        <div className="relative z-10 max-w-3xl">
-          <div className="flex flex-wrap items-center gap-2 mb-3">
+    <div className="flex-1 overflow-y-auto p-6 md:p-8 space-y-6 max-w-7xl mx-auto">
+      {/* Project Banner Header */}
+      <div className="relative overflow-hidden rounded-2xl border border-[#e9e3d8] bg-gradient-to-br from-white via-[#fcfaf6] to-[#f6efe3] p-6 shadow-xs">
+        <div className="relative z-10">
+          <div className="flex flex-wrap items-center gap-2 mb-2">
             <span className="text-[11px] font-semibold uppercase tracking-wider text-amber-800 bg-amber-100/70 border border-amber-200/80 px-2.5 py-0.5 rounded-full">
               {project.status}
             </span>
@@ -67,249 +119,170 @@ export const ProjectHubView: React.FC<ProjectHubViewProps> = ({
             </span>
           </div>
 
-          <h1 className="font-serif text-3xl md:text-4xl font-normal text-stone-900 tracking-tight mb-3">
+          <h1 className="font-serif text-2xl md:text-3xl font-semibold text-stone-900 tracking-tight mb-2">
             {project.title}
           </h1>
-          <p className="text-sm text-stone-600 leading-relaxed font-sans mb-6">
+          <p className="text-xs text-stone-600 leading-relaxed font-sans max-w-3xl">
             {project.synopsis}
           </p>
-
-          {/* Quick Metrics Bar */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 p-4 rounded-xl bg-white/80 border border-[#e9e3d8]/80 backdrop-blur-xs">
-            <div>
-              <span className="text-[11px] text-stone-400 font-medium block">Progress</span>
-              <span className="text-lg font-mono font-bold text-amber-800">{completionPct}%</span>
-            </div>
-            <div>
-              <span className="text-[11px] text-stone-400 font-medium block">Approved</span>
-              <span className="text-lg font-mono font-bold text-emerald-700">{approvedShots} / {shots.length}</span>
-            </div>
-            <div>
-              <span className="text-[11px] text-stone-400 font-medium block">Cut Time</span>
-              <span className="text-lg font-mono font-bold text-stone-800">{totalDurationSec}s</span>
-            </div>
-            <div>
-              <span className="text-[11px] text-stone-400 font-medium block">Total Frames</span>
-              <span className="text-lg font-mono font-bold text-stone-800">{totalFrames} f</span>
-            </div>
-          </div>
         </div>
 
-        <div className="absolute -right-8 -bottom-10 w-72 h-72 rounded-full bg-amber-200/20 blur-3xl pointer-events-none" />
+        <div className="absolute -right-8 -bottom-10 w-64 h-64 rounded-full bg-amber-200/20 blur-3xl pointer-events-none" />
       </div>
 
-      {/* Section Header */}
-      <div>
-        <h2 className="font-serif text-xl font-semibold text-stone-900 mb-1">
-          Production Pipeline Modules
-        </h2>
-        <p className="text-xs text-stone-500">
-          Click any card below to open its dedicated studio canvas
-        </p>
-      </div>
-
-      {/* 5 Production Module Cards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {/* 1. Screenplay & Script Card */}
-        <div 
-          onClick={() => onOpenModule('script')}
-          className="bg-white rounded-2xl border border-[#e9e3d8] p-5 shadow-xs hover:border-amber-400 hover:shadow-md transition-all cursor-pointer group flex flex-col justify-between"
-        >
-          <div>
-            <div className="flex items-center justify-between mb-4">
-              <div className="w-10 h-10 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 flex items-center justify-center">
-                <ScrollText className="w-5 h-5 stroke-[1.8]" />
-              </div>
-              <span className="text-[11px] font-mono px-2 py-0.5 rounded-full bg-stone-100 text-stone-600 font-medium">
-                {scenes.length} Scenes
-              </span>
-            </div>
-
-            <h3 className="font-serif text-lg font-semibold text-stone-900 mb-1.5 group-hover:text-amber-800 transition-colors">
-              Screenplay & Script
-            </h3>
-            <p className="text-xs text-stone-500 leading-relaxed mb-4">
-              Screenplay formatting with sluglines, character dialogue, parentheticals, and scene beat timing.
-            </p>
-
-            <div className="p-3 rounded-xl bg-[#fcfaf6] border border-[#e9e3d8] space-y-1.5 font-mono text-[11px] text-stone-600 mb-4">
-              <div className="truncate font-semibold text-stone-800">
-                {scenes[0]?.slugline || 'SCENE BREAKDOWN'}
-              </div>
-              <div className="truncate text-stone-500 text-[10px]">
-                {scenes[0]?.elements.find(e => e.type === 'dialogue')?.text || 'Dialogue beats locked'}
-              </div>
-            </div>
+      {/* Main Grid: Clean Minimalist Cards on Left, Project Chat on Right */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        {/* Left Side: 5 Clean Minimalist Text-Only Cards (cols 1 to 7) */}
+        <div className="lg:col-span-7 space-y-3">
+          <div className="px-1 mb-2">
+            <h2 className="text-xs font-bold uppercase tracking-wider text-stone-400">
+              Production Modules
+            </h2>
+            <p className="text-[11px] text-stone-500">Click a card to enter module canvas</p>
           </div>
 
-          <div className="pt-3 border-t border-stone-100 flex items-center justify-between text-xs text-amber-700 font-medium group-hover:translate-x-1 transition-transform">
-            <span>Open Screenplay Editor</span>
-            <ArrowRight className="w-4 h-4" />
-          </div>
-        </div>
+          <div className="space-y-2.5">
+            {modules.map((m) => {
+              const Icon = m.icon;
 
-        {/* 2. Storyboard Studio Card */}
-        <div 
-          onClick={() => onOpenModule('storyboard')}
-          className="bg-white rounded-2xl border border-[#e9e3d8] p-5 shadow-xs hover:border-amber-400 hover:shadow-md transition-all cursor-pointer group flex flex-col justify-between"
-        >
-          <div>
-            <div className="flex items-center justify-between mb-4">
-              <div className="w-10 h-10 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 flex items-center justify-center">
-                <Film className="w-5 h-5 stroke-[1.8]" />
-              </div>
-              <span className="text-[11px] font-mono px-2 py-0.5 rounded-full bg-stone-100 text-stone-600 font-medium">
-                {storyboards.length} Frames
-              </span>
-            </div>
+              return (
+                <div
+                  key={m.id}
+                  onClick={() => onOpenModule(m.id)}
+                  className="bg-white rounded-xl border border-[#e9e3d8] p-4 shadow-xs hover:border-amber-400 hover:shadow-md transition-all cursor-pointer group flex items-center justify-between"
+                >
+                  <div className="flex items-center space-x-3.5">
+                    <div className="w-10 h-10 rounded-xl bg-amber-50 border border-amber-200/70 text-amber-800 flex items-center justify-center group-hover:scale-105 transition-transform">
+                      <Icon className="w-5 h-5 stroke-[1.8]" />
+                    </div>
+                    <div>
+                      <h3 className="font-serif text-base font-semibold text-stone-900 group-hover:text-amber-800 transition-colors leading-tight">
+                        {m.title}
+                      </h3>
+                      <span className="text-[10px] text-stone-400 font-mono">
+                        {m.badge} Module
+                      </span>
+                    </div>
+                  </div>
 
-            <h3 className="font-serif text-lg font-semibold text-stone-900 mb-1.5 group-hover:text-amber-800 transition-colors">
-              Storyboard Studio
-            </h3>
-            <p className="text-xs text-stone-500 leading-relaxed mb-4">
-              Visual frame cards, camera movement directions, duration counters, audio cues, and fullscreen Lightbox.
-            </p>
-
-            {/* Thumbnail Snippet */}
-            {storyboards[0] && (
-              <div className="relative rounded-xl overflow-hidden aspect-video border border-[#e9e3d8] mb-4 bg-stone-900">
-                <img 
-                  src={storyboards[0].imageUrl} 
-                  alt="Storyboard preview" 
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform" 
-                />
-                <div className="absolute bottom-2 left-2 px-1.5 py-0.5 rounded bg-black/70 text-[10px] text-white font-mono">
-                  Shot {storyboards[0].shotNumber} • {storyboards[0].cameraMovement}
+                  <div className="flex items-center space-x-2 text-xs text-stone-400 group-hover:text-amber-700 transition-colors">
+                    <span className="text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity">Open</span>
+                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  </div>
                 </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Right Side: Project Chat (cols 8 to 12) */}
+        <div className="lg:col-span-5 bg-white rounded-2xl border border-[#e9e3d8] shadow-xs flex flex-col h-[520px] overflow-hidden">
+          {/* Chat Header */}
+          <div className="p-4 border-b border-[#e9e3d8] bg-[#fcfaf6] flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <MessageSquare className="w-4 h-4 text-amber-700" />
+              <h3 className="font-serif text-sm font-semibold text-stone-900">
+                Project Chat
+              </h3>
+            </div>
+            <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-stone-100 text-stone-600">
+              {project.title}
+            </span>
+          </div>
+
+          {/* Chat Messages Stream */}
+          <div className="flex-1 overflow-y-auto p-4 space-y-3.5">
+            {projectMessages.length === 0 ? (
+              <div className="text-center py-12 text-stone-400 text-xs">
+                No discussion yet for this film. Send the first note!
               </div>
+            ) : (
+              projectMessages.map((msg) => {
+                const author = team.find(t => t.id === msg.authorId);
+                const isCurrentUser = msg.authorId === currentMember.id;
+                const referencedShot = msg.shotRefId ? shots.find(s => s.id === msg.shotRefId) : null;
+
+                return (
+                  <div 
+                    key={msg.id}
+                    className={`flex items-start space-x-2.5 ${isCurrentUser ? 'flex-row-reverse space-x-reverse' : ''}`}
+                  >
+                    <img 
+                      src={author?.avatar} 
+                      alt={author?.name} 
+                      className="w-7 h-7 rounded-full object-cover ring-1 ring-stone-200 shrink-0" 
+                    />
+
+                    <div className={`max-w-[85%] ${isCurrentUser ? 'text-right' : ''}`}>
+                      <div className={`flex items-center space-x-1.5 mb-0.5 ${isCurrentUser ? 'justify-end' : ''}`}>
+                        <span className="text-[11px] font-semibold text-stone-800">{author?.name}</span>
+                        <span className="text-[9px] text-stone-400 font-mono">{msg.createdAt}</span>
+                      </div>
+
+                      <div className={`p-2.5 rounded-xl text-xs leading-relaxed ${
+                        isCurrentUser 
+                          ? 'bg-amber-700 text-white shadow-2xs rounded-tr-none' 
+                          : 'bg-[#fcfaf6] border border-[#e9e3d8] text-stone-800 shadow-2xs rounded-tl-none'
+                      }`}>
+                        <p>{msg.message}</p>
+
+                        {referencedShot && (
+                          <button
+                            onClick={() => onSelectShot && onSelectShot(referencedShot)}
+                            className={`mt-1.5 inline-block text-[10px] font-mono px-2 py-0.5 rounded ${
+                              isCurrentUser ? 'bg-amber-800 text-amber-100' : 'bg-amber-50 text-amber-800 border border-amber-200'
+                            }`}
+                          >
+                            #{referencedShot.code}
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })
             )}
           </div>
 
-          <div className="pt-3 border-t border-stone-100 flex items-center justify-between text-xs text-amber-700 font-medium group-hover:translate-x-1 transition-transform">
-            <span>Open Storyboard Sequencer</span>
-            <ArrowRight className="w-4 h-4" />
-          </div>
-        </div>
-
-        {/* 3. Animation Shots Card */}
-        <div 
-          onClick={() => onOpenModule('shots')}
-          className="bg-white rounded-2xl border border-[#e9e3d8] p-5 shadow-xs hover:border-amber-400 hover:shadow-md transition-all cursor-pointer group flex flex-col justify-between"
-        >
-          <div>
-            <div className="flex items-center justify-between mb-4">
-              <div className="w-10 h-10 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 flex items-center justify-center">
-                <Kanban className="w-5 h-5 stroke-[1.8]" />
+          {/* Project Chat Input */}
+          <form onSubmit={handleSendChat} className="p-3 border-t border-[#e9e3d8] bg-[#fcfaf6] space-y-1.5">
+            {selectedShotRef && (
+              <div className="flex items-center justify-between text-[11px] text-amber-800 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
+                <span>Tagging #{shots.find(s => s.id === selectedShotRef)?.code}</span>
+                <button type="button" onClick={() => setSelectedShotRef('')}>×</button>
               </div>
-              <span className="text-[11px] font-mono px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 font-medium">
-                {approvedShots}/{shots.length} Approved
-              </span>
+            )}
+
+            <div className="flex items-center space-x-1.5">
+              <select
+                value={selectedShotRef}
+                onChange={(e) => setSelectedShotRef(e.target.value)}
+                className="text-[11px] py-1.5 px-2 rounded-lg border border-[#e9e3d8] bg-white text-stone-600 focus:outline-none max-w-[90px] truncate"
+              >
+                <option value=""># Shot</option>
+                {shots.map(s => (
+                  <option key={s.id} value={s.id}>{s.code}</option>
+                ))}
+              </select>
+
+              <input
+                type="text"
+                placeholder="Message project team..."
+                value={chatInput}
+                onChange={(e) => setChatInput(e.target.value)}
+                className="flex-1 text-xs px-3 py-1.5 rounded-lg border border-[#e9e3d8] bg-white text-stone-800 focus:outline-none focus:ring-1 focus:ring-amber-500"
+                required
+              />
+
+              <button
+                type="submit"
+                className="p-1.5 rounded-lg bg-amber-600 hover:bg-amber-700 text-white transition-colors cursor-pointer"
+                title="Send Message"
+              >
+                <Send className="w-3.5 h-3.5" />
+              </button>
             </div>
-
-            <h3 className="font-serif text-lg font-semibold text-stone-900 mb-1.5 group-hover:text-amber-800 transition-colors">
-              Animation Shots
-            </h3>
-            <p className="text-xs text-stone-500 leading-relaxed mb-4">
-              7-Stage production tracking: Layout → Keyframe → In-Between → Color & FX → Composite → Approved.
-            </p>
-
-            <div className="p-3 rounded-xl bg-[#fcfaf6] border border-[#e9e3d8] mb-4 space-y-2">
-              <div className="flex justify-between text-[11px] text-stone-600 font-medium">
-                <span>Production Board</span>
-                <span className="font-mono text-amber-800">{inProgressShots} in progress</span>
-              </div>
-              <div className="h-2 w-full bg-stone-100 rounded-full overflow-hidden">
-                <div 
-                  className="h-full bg-gradient-to-r from-amber-500 to-emerald-600 rounded-full"
-                  style={{ width: `${completionPct}%` }}
-                />
-              </div>
-            </div>
-          </div>
-
-          <div className="pt-3 border-t border-stone-100 flex items-center justify-between text-xs text-amber-700 font-medium group-hover:translate-x-1 transition-transform">
-            <span>Open Shots Board & Table</span>
-            <ArrowRight className="w-4 h-4" />
-          </div>
-        </div>
-
-        {/* 4. Voice & Audio Lab Card */}
-        <div 
-          onClick={() => onOpenModule('audio')}
-          className="bg-white rounded-2xl border border-[#e9e3d8] p-5 shadow-xs hover:border-amber-400 hover:shadow-md transition-all cursor-pointer group flex flex-col justify-between"
-        >
-          <div>
-            <div className="flex items-center justify-between mb-4">
-              <div className="w-10 h-10 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 flex items-center justify-center">
-                <Mic2 className="w-5 h-5 stroke-[1.8]" />
-              </div>
-              <span className="text-[11px] font-mono px-2 py-0.5 rounded-full bg-stone-100 text-stone-600 font-medium">
-                {audioTakes.length} Takes
-              </span>
-            </div>
-
-            <h3 className="font-serif text-lg font-semibold text-stone-900 mb-1.5 group-hover:text-amber-800 transition-colors">
-              Voice & Audio Lab
-            </h3>
-            <p className="text-xs text-stone-500 leading-relaxed mb-4">
-              Character voice takes auditioning, dynamic waveform player, 5-star rating, and atmospheric Foley library.
-            </p>
-
-            <div className="p-3 rounded-xl bg-[#fcfaf6] border border-[#e9e3d8] mb-4 flex items-center space-x-3">
-              <div className="w-8 h-8 rounded-full bg-amber-100 text-amber-800 flex items-center justify-center font-serif text-xs font-bold">
-                ♪
-              </div>
-              <div className="truncate">
-                <p className="text-xs font-semibold text-stone-800 truncate">
-                  {audioTakes[0]?.characterName || 'Voice Tracks'}
-                </p>
-                <p className="text-[10px] text-stone-400 truncate">
-                  "{audioTakes[0]?.lineText || 'Master dialogue mix'}"
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="pt-3 border-t border-stone-100 flex items-center justify-between text-xs text-amber-700 font-medium group-hover:translate-x-1 transition-transform">
-            <span>Open Audio Lab</span>
-            <ArrowRight className="w-4 h-4" />
-          </div>
-        </div>
-
-        {/* 5. Video Renders & Review Card */}
-        <div 
-          onClick={() => onOpenModule('renders')}
-          className="bg-white rounded-2xl border border-[#e9e3d8] p-5 shadow-xs hover:border-amber-400 hover:shadow-md transition-all cursor-pointer group flex flex-col justify-between"
-        >
-          <div>
-            <div className="flex items-center justify-between mb-4">
-              <div className="w-10 h-10 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 flex items-center justify-center">
-                <Video className="w-5 h-5 stroke-[1.8]" />
-              </div>
-              <span className="text-[11px] font-mono px-2 py-0.5 rounded-full bg-amber-100/70 text-amber-900 border border-amber-200 font-medium">
-                {renders[0]?.version || 'v03 Cut'}
-              </span>
-            </div>
-
-            <h3 className="font-serif text-lg font-semibold text-stone-900 mb-1.5 group-hover:text-amber-800 transition-colors">
-              Renders & Review
-            </h3>
-            <p className="text-xs text-stone-500 leading-relaxed mb-4">
-              2.39:1 Anamorphic video player, timecode scrub bar (`00:00:00:00`), and timecoded director comment pins.
-            </p>
-
-            <div className="p-3 rounded-xl bg-[#fcfaf6] border border-[#e9e3d8] mb-4 flex items-center justify-between text-xs text-stone-600">
-              <span className="font-mono font-medium">{renders[0]?.fileName || 'AURA_Master.mp4'}</span>
-              <span className="text-[10px] px-2 py-0.5 rounded bg-stone-200 text-stone-800 font-mono">
-                {renders[0]?.resolution.split(' ')[0] || '4K'}
-              </span>
-            </div>
-          </div>
-
-          <div className="pt-3 border-t border-stone-100 flex items-center justify-between text-xs text-amber-700 font-medium group-hover:translate-x-1 transition-transform">
-            <span>Open Renders & Review Suite</span>
-            <ArrowRight className="w-4 h-4" />
-          </div>
+          </form>
         </div>
       </div>
     </div>
