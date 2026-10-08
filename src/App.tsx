@@ -158,6 +158,14 @@ export function App() {
     setSelectedShot(created);
   };
 
+  const handleDeleteShot = async (shotId: string) => {
+    const updated = await StudioApi.deleteShot(shotId);
+    setShots(updated);
+    if (selectedShot?.id === shotId) {
+      setSelectedShot(null);
+    }
+  };
+
   const handleSaveScenes = async (updatedScenes: ScriptScene[]) => {
     await StudioApi.saveScriptScenes(updatedScenes);
     setScenes(updatedScenes);
@@ -174,13 +182,35 @@ export function App() {
     setAudioTakes(updated);
   };
 
+  const handleAddAudioTake = async (newTake: Omit<AudioTake, 'id' | 'createdAt'>) => {
+    const updated = await StudioApi.addAudioTake(newTake);
+    setAudioTakes(updated);
+  };
+
+  const handleDeleteAudioTake = async (takeId: string) => {
+    const updated = await StudioApi.deleteAudioTake(takeId);
+    setAudioTakes(updated);
+  };
+
+  const handleAddRender = async (newRender: Omit<RenderFile, 'id' | 'createdAt' | 'feedback'>) => {
+    const updated = await StudioApi.addRender(newRender);
+    setRenders(updated);
+  };
+
+  const handleDeleteRender = async (renderId: string) => {
+    const updated = await StudioApi.deleteRender(renderId);
+    setRenders(updated);
+  };
+
   const handleAddRenderFeedback = async (
     renderId: string, 
     authorId: string, 
     timecodeSec: number, 
-    comment: string
+    comment: string,
+    authorName?: string,
+    authorAvatar?: string
   ) => {
-    const updated = await StudioApi.addRenderFeedback(renderId, authorId, timecodeSec, comment);
+    const updated = await StudioApi.addRenderFeedback(renderId, authorId, timecodeSec, comment, authorName, authorAvatar);
     setRenders(updated);
   };
 
@@ -331,6 +361,7 @@ export function App() {
                   onSelectShot={handleSelectShot}
                   onUpdateStage={handleUpdateStage}
                   onOpenNewShot={() => setIsNewShotModalOpen(true)}
+                  onDeleteShot={handleDeleteShot}
                 />
               )}
 
@@ -338,7 +369,10 @@ export function App() {
                 <AudioLabView
                   takes={audioTakes}
                   team={team}
+                  currentUser={currentUser}
                   onSelectTake={handleSelectAudioTake}
+                  onAddAudioTake={handleAddAudioTake}
+                  onDeleteAudioTake={handleDeleteAudioTake}
                 />
               )}
 
@@ -346,7 +380,10 @@ export function App() {
                 <RendersView
                   renders={renders}
                   team={team}
+                  currentUser={currentUser}
                   onAddFeedback={handleAddRenderFeedback}
+                  onAddRender={handleAddRender}
+                  onDeleteRender={handleDeleteRender}
                 />
               )}
             </>
@@ -386,8 +423,8 @@ export function App() {
       {/* New Shot Modal */}
       <NewShotModal
         isOpen={isNewShotModalOpen}
+        currentUser={currentUser}
         onClose={() => setIsNewShotModalOpen(false)}
-        team={team}
         onAddShot={handleAddShot}
         lastShotNumber={shots.length}
       />

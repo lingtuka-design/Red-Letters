@@ -96,42 +96,56 @@ export interface StoryboardFrame {
 export interface Shot {
   id: string;
   projectId: string;
-  sceneId: string;
+  sceneId?: string;
+  sceneName?: string;
   code: string;
   title: string;
   stage: ProductionStage;
-  priority: ShotPriority;
-  assignedTo: string;
+  priority?: ShotPriority;
+  assignedTo?: string;
   startFrame: number;
   endFrame: number;
   durationSec: number;
   thumbnailUrl: string;
-  notes: string;
-  complexity: ShotComplexity;
-  cameraAngle: string;
-  revisionCount: number;
-  updatedAt: string;
+  notes?: string;
+  description?: string;
+  complexity?: ShotComplexity;
+  cameraAngle?: string;
+  revisionCount?: number;
+  updatedAt?: string;
+  createdBy?: string;
+  createdByName?: string;
+  authorAvatar?: string;
 }
 
 export interface AudioTake {
   id: string;
   projectId: string;
+  title?: string;
+  description?: string;
   shotId?: string;
   characterName: string;
-  voiceActor: string;
-  lineText: string;
-  takeNumber: number;
+  voiceActor?: string;
+  lineText?: string;
+  takeNumber?: number;
   audioUrl: string;
-  durationSec: number;
-  waveformData: number[];
-  isSelected: boolean;
-  rating: number;
+  audioDataUrl?: string;
+  durationSec?: number;
+  waveformData?: number[];
+  isSelected?: boolean;
+  rating?: number;
   notes?: string;
+  createdBy?: string;
+  createdByName?: string;
+  authorAvatar?: string;
+  createdAt?: string;
 }
 
 export interface RenderFeedback {
   id: string;
   authorId: string;
+  authorName?: string;
+  authorAvatar?: string;
   timecodeSec: number;
   comment: string;
   isResolved: boolean;
@@ -141,20 +155,27 @@ export interface RenderFeedback {
 export interface RenderFile {
   id: string;
   projectId: string;
-  shotId: string;
-  shotCode: string;
-  version: string;
-  fileName: string;
+  title?: string;
+  description?: string;
+  notes?: string;
+  driveUrl?: string;
+  shotId?: string;
+  shotCode?: string;
+  version?: string;
+  fileName?: string;
   videoUrl: string;
-  posterUrl: string;
-  status: 'Rendering' | 'Completed' | 'In Review' | 'Approved';
-  renderEngine: string;
-  durationSec: number;
-  resolution: string;
-  fps: number;
-  fileSizeMb: number;
+  posterUrl?: string;
+  status?: 'Rendering' | 'Completed' | 'In Review' | 'Approved';
+  renderEngine?: string;
+  durationSec?: number;
+  resolution?: string;
+  fps?: number;
+  fileSizeMb?: number;
   feedback: RenderFeedback[];
-  createdAt: string;
+  createdBy?: string;
+  createdByName?: string;
+  authorAvatar?: string;
+  createdAt?: string;
 }
 
 export interface ChatMessage {

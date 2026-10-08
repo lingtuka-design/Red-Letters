@@ -10,7 +10,8 @@ import {
   Search, 
   ChevronRight, 
   ChevronLeft, 
-  Plus
+  Plus,
+  Trash2
 } from 'lucide-react';
 
 interface ShotsViewProps {
@@ -21,6 +22,7 @@ interface ShotsViewProps {
   onSelectShot: (shot: Shot) => void;
   onUpdateStage: (shotId: string, stage: ProductionStage) => void;
   onOpenNewShot: () => void;
+  onDeleteShot?: (shotId: string) => void;
 }
 
 const STAGES: ProductionStage[] = [
@@ -36,11 +38,12 @@ const STAGES: ProductionStage[] = [
 export const ShotsView: React.FC<ShotsViewProps> = ({
   shots,
   team,
-  fps,
+  fps: _fps,
   selectedShot,
   onSelectShot,
   onUpdateStage,
-  onOpenNewShot
+  onOpenNewShot,
+  onDeleteShot
 }) => {
   const [viewMode, setViewMode] = useState<'kanban' | 'table'>('kanban');
   const [searchQuery, setSearchQuery] = useState('');
@@ -187,7 +190,6 @@ export const ShotsView: React.FC<ShotsViewProps> = ({
                       const isSelected = selectedShot?.id === shot.id;
                       const nextSt = getNextStage(shot.stage);
                       const prevSt = getPrevStage(shot.stage);
-                      const frameCount = shot.endFrame - shot.startFrame + 1;
 
                       return (
                         <div
@@ -199,59 +201,61 @@ export const ShotsView: React.FC<ShotsViewProps> = ({
                               : 'border-[#e9e3d8] hover:border-stone-400 hover:shadow-xs'
                           }`}
                         >
-                          {/* Thumbnail */}
+                          {/* Picture Preview */}
                           {shot.thumbnailUrl && (
-                            <div className="relative rounded-lg overflow-hidden aspect-video mb-2.5 bg-stone-900">
+                            <div className="relative rounded-lg overflow-hidden aspect-video mb-2.5 bg-stone-900 shadow-2xs">
                               <img 
                                 src={shot.thumbnailUrl} 
                                 alt={shot.title} 
-                                className="w-full h-full object-cover group-hover:scale-105 transition-transform" 
+                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" 
                               />
-                              <div className="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded bg-black/70 text-[10px] font-mono text-stone-200">
-                                {shot.code}
-                              </div>
-                              <div className="absolute bottom-1.5 right-1.5 px-1.5 py-0.5 rounded bg-black/70 text-[10px] font-mono text-amber-300">
-                                {frameCount}f
-                              </div>
+                              {shot.sceneName && (
+                                <div className="absolute top-1.5 left-1.5 px-2 py-0.5 rounded bg-black/75 backdrop-blur-xs text-[10px] font-semibold text-amber-300">
+                                  {shot.sceneName}
+                                </div>
+                              )}
                             </div>
                           )}
 
-                          {/* Title & Priority */}
-                          <div className="flex items-start justify-between gap-1 mb-2">
+                          {/* Title */}
+                          <div className="flex items-start justify-between gap-1 mb-1">
                             <h4 className="text-xs font-semibold text-stone-900 leading-snug">
                               {shot.title}
                             </h4>
-                            <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium shrink-0 ${
-                              shot.priority === 'Critical' ? 'bg-red-50 text-red-700 border border-red-200' :
-                              shot.priority === 'High' ? 'bg-amber-50 text-amber-700 border border-amber-200' :
-                              'bg-stone-50 text-stone-600'
-                            }`}>
-                              {shot.priority}
-                            </span>
                           </div>
 
-                          {/* Assignee & Footer */}
+                          {/* Description */}
+                          {(shot.description || shot.notes) && (
+                            <p className="text-[11px] text-stone-600 line-clamp-2 leading-relaxed mb-2">
+                              {shot.description || shot.notes}
+                            </p>
+                          )}
+
+                          {/* Post-tu & Footer */}
                           <div className="flex items-center justify-between pt-2 border-t border-stone-100 text-xs">
-                            <div className="flex items-center space-x-1.5">
-                              {assignee ? (
-                                <>
-                                  <img 
-                                    src={assignee.avatar} 
-                                    alt={assignee.name} 
-                                    className="w-5 h-5 rounded-full object-cover" 
-                                    title={assignee.name}
-                                  />
-                                  <span className="text-[11px] text-stone-600 truncate max-w-[80px]">
-                                    {assignee.name.split(' ')[0]}
-                                  </span>
-                                </>
-                              ) : (
-                                <span className="text-[10px] text-stone-400 italic">Unassigned</span>
-                              )}
+                            <div className="flex items-center space-x-1.5" title={`Posted by ${shot.createdByName || assignee?.name || 'Artist'}`}>
+                              <img 
+                                src={shot.authorAvatar || assignee?.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80'} 
+                                alt={shot.createdByName || assignee?.name || 'Artist'} 
+                                className="w-5 h-5 rounded-full object-cover ring-1 ring-amber-300" 
+                              />
+                              <span className="text-[11px] text-stone-700 font-medium truncate max-w-[85px]">
+                                {shot.createdByName ? shot.createdByName : assignee?.name?.split(' ')[0] || 'Artist'}
+                              </span>
                             </div>
 
-                            {/* Quick Stage Shifters */}
+                            {/* Quick Stage Shifters & Delete */}
                             <div className="flex items-center space-x-1" onClick={(e) => e.stopPropagation()}>
+                              {onDeleteShot && (
+                                <button
+                                  type="button"
+                                  onClick={() => onDeleteShot(shot.id)}
+                                  title="Delete shot picture"
+                                  className="p-1 rounded text-stone-300 hover:text-red-600 hover:bg-red-50 transition-colors"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
+                              )}
                               {prevSt && (
                                 <button
                                   onClick={() => onUpdateStage(shot.id, prevSt)}
@@ -287,21 +291,17 @@ export const ShotsView: React.FC<ShotsViewProps> = ({
               <table className="w-full text-left text-xs">
                 <thead className="bg-[#fcfaf6] border-b border-[#e9e3d8] text-stone-500 uppercase tracking-wider font-semibold text-[10px] sticky top-0">
                   <tr>
-                    <th className="py-3 px-4">Shot Code</th>
-                    <th className="py-3 px-4">Title</th>
+                    <th className="py-3 px-4">Picture</th>
+                    <th className="py-3 px-4">Scene</th>
+                    <th className="py-3 px-4">Shot Title & Description</th>
                     <th className="py-3 px-4">Stage</th>
-                    <th className="py-3 px-4">Assignee</th>
-                    <th className="py-3 px-4">Frames</th>
-                    <th className="py-3 px-4">Duration</th>
-                    <th className="py-3 px-4">Priority</th>
+                    <th className="py-3 px-4">Post-tu (Artist)</th>
                     <th className="py-3 px-4">Action</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-stone-100">
                   {filteredShots.map((shot) => {
                     const assignee = team.find(m => m.id === shot.assignedTo);
-                    const frameCount = shot.endFrame - shot.startFrame + 1;
-                    const durationSec = (frameCount / fps).toFixed(2);
                     const isSelected = selectedShot?.id === shot.id;
 
                     return (
@@ -312,11 +312,21 @@ export const ShotsView: React.FC<ShotsViewProps> = ({
                           isSelected ? 'bg-amber-50/50' : ''
                         }`}
                       >
-                        <td className="py-3 px-4 font-mono font-bold text-stone-900">
-                          {shot.code}
+                        <td className="py-2.5 px-4">
+                          <img 
+                            src={shot.thumbnailUrl} 
+                            alt={shot.title} 
+                            className="w-14 h-9 object-cover rounded-md border border-stone-200"
+                          />
                         </td>
-                        <td className="py-3 px-4 font-medium text-stone-800">
-                          {shot.title}
+                        <td className="py-3 px-4 font-semibold text-amber-800">
+                          {shot.sceneName || shot.code || '-'}
+                        </td>
+                        <td className="py-3 px-4 max-w-xs">
+                          <div className="font-medium text-stone-800">{shot.title}</div>
+                          {(shot.description || shot.notes) && (
+                            <div className="text-[11px] text-stone-500 truncate">{shot.description || shot.notes}</div>
+                          )}
                         </td>
                         <td className="py-3 px-4">
                           <span className={`px-2 py-0.5 rounded-full text-[11px] font-medium border ${
@@ -329,40 +339,41 @@ export const ShotsView: React.FC<ShotsViewProps> = ({
                           </span>
                         </td>
                         <td className="py-3 px-4">
-                          {assignee ? (
-                            <div className="flex items-center space-x-2">
-                              <img src={assignee.avatar} alt={assignee.name} className="w-5 h-5 rounded-full object-cover" />
-                              <span className="text-stone-700">{assignee.name}</span>
-                            </div>
-                          ) : (
-                            <span className="text-stone-400 italic">Unassigned</span>
-                          )}
-                        </td>
-                        <td className="py-3 px-4 font-mono text-stone-600">
-                          {shot.startFrame} - {shot.endFrame} ({frameCount}f)
-                        </td>
-                        <td className="py-3 px-4 font-mono text-stone-600">
-                          {durationSec}s
-                        </td>
-                        <td className="py-3 px-4">
-                          <span className={`text-[10px] px-2 py-0.5 rounded font-medium ${
-                            shot.priority === 'Critical' ? 'bg-red-50 text-red-700' :
-                            shot.priority === 'High' ? 'bg-amber-50 text-amber-700' :
-                            'bg-stone-100 text-stone-600'
-                          }`}>
-                            {shot.priority}
-                          </span>
+                          <div className="flex items-center space-x-2">
+                            <img 
+                              src={shot.authorAvatar || assignee?.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80'} 
+                              alt={shot.createdByName || assignee?.name || 'Artist'} 
+                              className="w-5 h-5 rounded-full object-cover" 
+                            />
+                            <span className="text-stone-700 font-medium">
+                              {shot.createdByName ? shot.createdByName : assignee?.name || 'Artist'}
+                            </span>
+                          </div>
                         </td>
                         <td className="py-3 px-4 text-stone-400">
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              onSelectShot(shot);
-                            }}
-                            className="text-amber-700 hover:text-amber-800 font-medium"
-                          >
-                            Inspect
-                          </button>
+                          <div className="flex items-center space-x-2">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                onSelectShot(shot);
+                              }}
+                              className="text-amber-700 hover:text-amber-800 font-medium"
+                            >
+                              View
+                            </button>
+                            {onDeleteShot && (
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  onDeleteShot(shot.id);
+                                }}
+                                className="text-red-500 hover:text-red-700"
+                                title="Delete shot"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            )}
+                          </div>
                         </td>
                       </tr>
                     );

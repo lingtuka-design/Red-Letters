@@ -230,6 +230,13 @@ export const StudioApi = {
     return created;
   },
 
+  async deleteShot(shotId: string): Promise<Shot[]> {
+    const shots = await this.getShots();
+    const updated = shots.filter(s => s.id !== shotId);
+    setLocal(STORAGE_KEYS.SHOTS, updated);
+    return updated;
+  },
+
   // Script Scenes
   async getScriptScenes(): Promise<ScriptScene[]> {
     return getLocal<ScriptScene[]>(STORAGE_KEYS.SCENES, INITIAL_SCRIPT_SCENES);
@@ -302,6 +309,25 @@ export const StudioApi = {
     return getLocal<AudioTake[]>(STORAGE_KEYS.AUDIO, INITIAL_AUDIO_TAKES);
   },
 
+  async addAudioTake(newTake: Omit<AudioTake, 'id' | 'createdAt'>): Promise<AudioTake[]> {
+    const takes = await this.getAudioTakes();
+    const created: AudioTake = {
+      ...newTake,
+      id: `take_${Date.now()}`,
+      createdAt: 'Just now'
+    };
+    const updated = [created, ...takes];
+    setLocal(STORAGE_KEYS.AUDIO, updated);
+    return updated;
+  },
+
+  async deleteAudioTake(takeId: string): Promise<AudioTake[]> {
+    const takes = await this.getAudioTakes();
+    const updated = takes.filter(t => t.id !== takeId);
+    setLocal(STORAGE_KEYS.AUDIO, updated);
+    return updated;
+  },
+
   async selectAudioTake(takeId: string): Promise<void> {
     const takes = await this.getAudioTakes();
     const updated = takes.map(t => ({
@@ -316,7 +342,34 @@ export const StudioApi = {
     return getLocal<RenderFile[]>(STORAGE_KEYS.RENDERS, INITIAL_RENDERS);
   },
 
-  async addRenderFeedback(renderId: string, authorId: string, timecodeSec: number, comment: string): Promise<RenderFile[]> {
+  async addRender(newRender: Omit<RenderFile, 'id' | 'createdAt' | 'feedback'>): Promise<RenderFile[]> {
+    const renders = await this.getRenders();
+    const created: RenderFile = {
+      ...newRender,
+      id: `rend_${Date.now()}`,
+      feedback: [],
+      createdAt: 'Just now'
+    };
+    const updated = [created, ...renders];
+    setLocal(STORAGE_KEYS.RENDERS, updated);
+    return updated;
+  },
+
+  async deleteRender(renderId: string): Promise<RenderFile[]> {
+    const renders = await this.getRenders();
+    const updated = renders.filter(r => r.id !== renderId);
+    setLocal(STORAGE_KEYS.RENDERS, updated);
+    return updated;
+  },
+
+  async addRenderFeedback(
+    renderId: string, 
+    authorId: string, 
+    timecodeSec: number, 
+    comment: string, 
+    authorName?: string, 
+    authorAvatar?: string
+  ): Promise<RenderFile[]> {
     const renders = await this.getRenders();
     const updated = renders.map(r => {
       if (r.id === renderId) {
@@ -327,6 +380,8 @@ export const StudioApi = {
             {
               id: `fb_${Date.now()}`,
               authorId,
+              authorName,
+              authorAvatar,
               timecodeSec,
               comment,
               isResolved: false,
