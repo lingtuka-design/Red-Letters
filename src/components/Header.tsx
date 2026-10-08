@@ -63,7 +63,7 @@ export const Header: React.FC<HeaderProps> = ({
           <div>
             <div className="flex items-center space-x-1.5 text-xs text-stone-500">
               <span className="font-serif italic font-semibold text-stone-900 text-sm">
-                AURA Studio
+                Red Letters Studio
               </span>
               <ChevronRight className="w-3.5 h-3.5 text-stone-300" />
 

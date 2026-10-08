@@ -203,7 +203,7 @@ export function App() {
       <div className="h-screen w-screen flex items-center justify-center bg-[#fcfaf6]">
         <div className="text-center space-y-3">
           <div className="w-10 h-10 rounded-full border-2 border-amber-600 border-t-transparent animate-spin mx-auto" />
-          <p className="font-serif italic text-stone-600 text-sm">Opening AURA Animation Studio...</p>
+          <p className="font-serif italic text-stone-600 text-sm">Opening Red Letters Studio...</p>
         </div>
       </div>
     );

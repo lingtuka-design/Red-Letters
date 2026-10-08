@@ -64,7 +64,7 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
         <div className="relative z-10 max-w-2xl">
           <div className="flex items-center space-x-2 text-xs font-semibold text-amber-800 uppercase tracking-wider mb-2">
             <Sparkles className="w-4 h-4 text-amber-600" />
-            <span>AURA Animation Studio • Executive Deck</span>
+            <span>Red Letters Studio • Executive Deck</span>
           </div>
           <h1 className="font-serif text-3xl md:text-4xl font-normal text-stone-900 tracking-tight mb-3">
             Collaborative Production Slate

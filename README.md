@@ -1,4 +1,4 @@
-# AURA Animation Studio Workspace 🎬✨
+# Red Letters Studio Workspace 🎬✨
 ### Collaborative Production Hub for Indie Animation Teams (5-Artist Pipeline)
 
 A modern, high-performance, full-stack **Animation Production Workspace & Collaboration Hub** tailored for an indie team of 5 artists working on animated short films.
