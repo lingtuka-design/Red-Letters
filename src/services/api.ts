@@ -9,7 +9,7 @@ import type {
   ChatMessage 
 } from '../types';
 import { 
-  INITIAL_PROJECT, 
+  INITIAL_PROJECTS, 
   INITIAL_TEAM, 
   INITIAL_SCRIPT_SCENES, 
   INITIAL_STORYBOARD_FRAMES, 
@@ -21,7 +21,8 @@ import {
 
 // Storage keys
 const STORAGE_KEYS = {
-  PROJECT: 'aura_project',
+  PROJECTS: 'aura_projects',
+  SELECTED_PROJECT_ID: 'aura_selected_project_id',
   TEAM: 'aura_team',
   SCENES: 'aura_scenes',
   STORYBOARDS: 'aura_storyboards',
@@ -60,16 +61,20 @@ export const StudioApi = {
     }
   },
 
-  // Project Info
-  async getProject(): Promise<Project> {
-    return getLocal<Project>(STORAGE_KEYS.PROJECT, INITIAL_PROJECT);
+  // All Projects
+  async getProjects(): Promise<Project[]> {
+    return getLocal<Project[]>(STORAGE_KEYS.PROJECTS, INITIAL_PROJECTS);
   },
 
-  async updateProject(project: Partial<Project>): Promise<Project> {
-    const current = await this.getProject();
-    const updated = { ...current, ...project };
-    setLocal(STORAGE_KEYS.PROJECT, updated);
-    return updated;
+  async addProject(newProject: Omit<Project, 'id'>): Promise<Project> {
+    const projects = await this.getProjects();
+    const created: Project = {
+      ...newProject,
+      id: `proj_${Date.now()}`
+    };
+    const updated = [...projects, created];
+    setLocal(STORAGE_KEYS.PROJECTS, updated);
+    return created;
   },
 
   // Team

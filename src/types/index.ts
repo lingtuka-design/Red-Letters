@@ -31,13 +31,15 @@ export interface Project {
   status: 'Pre-Production' | 'Production' | 'Post-Production' | 'Final Polish';
   deadline: string;
   targetDurationSec: number;
+  coverImage?: string;
+  accentColor?: string;
 }
 
 export interface ScriptScene {
   id: string;
   projectId: string;
   sceneNumber: number;
-  slugline: string; // e.g. "INT. THE CLOCKMAKER'S ATELIER - DAWN"
+  slugline: string;
   synopsis: string;
   estimatedDurationSec: number;
   elements: {
@@ -51,7 +53,7 @@ export interface StoryboardFrame {
   id: string;
   projectId: string;
   sceneId: string;
-  shotNumber: string; // "01A", "01B"
+  shotNumber: string;
   imageUrl: string;
   cameraMovement: 'Static Wide' | 'Slow Dolly In' | 'Pan Right' | 'Tracking Shot' | 'Dutch Angle' | 'Tilt Up';
   shotType: 'Extreme Wide' | 'Wide' | 'Medium' | 'Close Up' | 'Extreme Close Up';
@@ -66,11 +68,11 @@ export interface Shot {
   id: string;
   projectId: string;
   sceneId: string;
-  code: string; // e.g. "SC01_SH01"
+  code: string;
   title: string;
   stage: ProductionStage;
   priority: ShotPriority;
-  assignedTo: string; // teamMember id
+  assignedTo: string;
   startFrame: number;
   endFrame: number;
   durationSec: number;
@@ -92,9 +94,9 @@ export interface AudioTake {
   takeNumber: number;
   audioUrl: string;
   durationSec: number;
-  waveformData: number[]; // 0-100 amplitude values for waveform
+  waveformData: number[];
   isSelected: boolean;
-  rating: number; // 1-5
+  rating: number;
   notes?: string;
 }
 
@@ -112,7 +114,7 @@ export interface RenderFile {
   projectId: string;
   shotId: string;
   shotCode: string;
-  version: string; // e.g. "v03"
+  version: string;
   fileName: string;
   videoUrl: string;
   posterUrl: string;
@@ -136,11 +138,5 @@ export interface ChatMessage {
   createdAt: string;
 }
 
-export type PipelineView = 
-  | 'overview' 
-  | 'script' 
-  | 'storyboard' 
-  | 'shots' 
-  | 'audio' 
-  | 'renders' 
-  | 'chat';
+export type MainNavigation = 'studio_overview' | 'project' | 'team_chat';
+export type ProjectModule = 'hub' | 'script' | 'storyboard' | 'shots' | 'audio' | 'renders';

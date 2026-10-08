@@ -8,7 +8,8 @@ import type {
   AudioTake, 
   RenderFile, 
   ChatMessage, 
-  PipelineView, 
+  MainNavigation, 
+  ProjectModule, 
   ProductionStage 
 } from './types';
 import { StudioApi } from './services/api';
@@ -16,8 +17,9 @@ import { Header } from './components/Header';
 import { Sidebar } from './components/Sidebar';
 import { Inspector } from './components/Inspector';
 
-// Pipeline Views
+// Views
 import { OverviewView } from './components/views/OverviewView';
+import { ProjectHubView } from './components/views/ProjectHubView';
 import { ScriptView } from './components/views/ScriptView';
 import { StoryboardView } from './components/views/StoryboardView';
 import { ShotsView } from './components/views/ShotsView';
@@ -30,8 +32,11 @@ import { NewShotModal } from './components/Modals/NewShotModal';
 import { ExportModal } from './components/Modals/ExportModal';
 
 export function App() {
-  const [currentView, setCurrentView] = useState<PipelineView>('overview');
-  const [project, setProject] = useState<Project | null>(null);
+  const [currentNav, setCurrentNav] = useState<MainNavigation>('project');
+  const [selectedProjectId, setSelectedProjectId] = useState<string>('');
+  const [activeModule, setActiveModule] = useState<ProjectModule>('hub');
+
+  const [projects, setProjects] = useState<Project[]>([]);
   const [team, setTeam] = useState<TeamMember[]>([]);
   const [scenes, setScenes] = useState<ScriptScene[]>([]);
   const [storyboards, setStoryboards] = useState<StoryboardFrame[]>([]);
@@ -51,8 +56,8 @@ export function App() {
   // Load initial data
   useEffect(() => {
     async function loadData() {
-      const [proj, teamData, sc, sb, sh, aud, rend, chat] = await Promise.all([
-        StudioApi.getProject(),
+      const [projList, teamData, sc, sb, sh, aud, rend, chat] = await Promise.all([
+        StudioApi.getProjects(),
         StudioApi.getTeam(),
         StudioApi.getScriptScenes(),
         StudioApi.getStoryboards(),
@@ -62,7 +67,10 @@ export function App() {
         StudioApi.getChat()
       ]);
 
-      setProject(proj);
+      setProjects(projList);
+      if (projList.length > 0) {
+        setSelectedProjectId(projList[0].id);
+      }
       setTeam(teamData);
       setScenes(sc);
       setStoryboards(sb);
@@ -77,6 +85,8 @@ export function App() {
     }
     loadData();
   }, []);
+
+  const activeProject = projects.find(p => p.id === selectedProjectId) || projects[0];
 
   // Handlers
   const handleUpdateStage = async (shotId: string, stage: ProductionStage) => {
@@ -133,7 +143,13 @@ export function App() {
     setIsInspectorOpen(true);
   };
 
-  if (!project) {
+  const handleSelectProject = (projectId: string) => {
+    setSelectedProjectId(projectId);
+    setCurrentNav('project');
+    setActiveModule('hub');
+  };
+
+  if (!activeProject) {
     return (
       <div className="h-screen w-screen flex items-center justify-center bg-[#fcfaf6]">
         <div className="text-center space-y-3">
@@ -144,93 +160,49 @@ export function App() {
     );
   }
 
-  const approvedCount = shots.filter(s => s.stage === 'Approved').length;
-  const inProgressCount = shots.filter(s => s.stage !== 'Approved' && s.stage !== 'Script').length;
-
   return (
     <div className="h-screen w-screen flex flex-col overflow-hidden bg-[#fcfaf6] text-stone-900 font-sans">
       {/* Studio Header */}
       <Header
-        project={project}
+        currentNav={currentNav}
+        activeModule={activeModule}
+        project={activeProject}
         team={team}
         shots={shots}
         onOpenNewShot={() => setIsNewShotModalOpen(true)}
         onOpenExport={() => setIsExportModalOpen(true)}
+        onBackToProjectHub={() => setActiveModule('hub')}
         selectedShot={selectedShot}
       />
 
       {/* 3-Panel Studio Layout */}
       <div className="flex-1 flex overflow-hidden">
-        {/* Left Panel: Navigation & Studio Roster */}
+        {/* Left Panel: Studio Overview, Team Room & Vertical Projects List */}
         <Sidebar
-          currentView={currentView}
-          onSelectView={setCurrentView}
+          currentNav={currentNav}
+          selectedProjectId={selectedProjectId}
+          projects={projects}
           team={team}
-          project={project}
-          shotCounts={{
-            total: shots.length,
-            inProgress: inProgressCount,
-            approved: approvedCount
-          }}
+          onSelectStudioOverview={() => setCurrentNav('studio_overview')}
+          onSelectTeamChat={() => setCurrentNav('team_chat')}
+          onSelectProject={handleSelectProject}
         />
 
-        {/* Center Panel: Active Production Workspace */}
+        {/* Center Panel: Active Workspace Canvas */}
         <main className="flex-1 flex flex-col overflow-hidden bg-[#fcfaf6]">
-          {currentView === 'overview' && (
+          {/* 1. Studio-wide Overview */}
+          {currentNav === 'studio_overview' && (
             <OverviewView
-              project={project}
+              projects={projects}
               shots={shots}
               team={team}
-              onNavigate={setCurrentView}
-              onSelectShot={handleSelectShot}
+              onSelectProject={handleSelectProject}
+              onOpenTeamChat={() => setCurrentNav('team_chat')}
             />
           )}
 
-          {currentView === 'script' && (
-            <ScriptView
-              scenes={scenes}
-              team={team}
-              onSaveScenes={handleSaveScenes}
-            />
-          )}
-
-          {currentView === 'storyboard' && (
-            <StoryboardView
-              frames={storyboards}
-              fps={project.fps}
-              onAddFrame={handleAddStoryboardFrame}
-            />
-          )}
-
-          {currentView === 'shots' && (
-            <ShotsView
-              shots={shots}
-              team={team}
-              fps={project.fps}
-              selectedShot={selectedShot}
-              onSelectShot={handleSelectShot}
-              onUpdateStage={handleUpdateStage}
-              onOpenNewShot={() => setIsNewShotModalOpen(true)}
-            />
-          )}
-
-          {currentView === 'audio' && (
-            <AudioLabView
-              takes={audioTakes}
-              team={team}
-              onSelectTake={handleSelectAudioTake}
-            />
-          )}
-
-          {currentView === 'renders' && (
-            <RendersView
-              renders={renders}
-              team={team}
-              onAddFeedback={handleAddRenderFeedback}
-            />
-          )}
-
-          {currentView === 'chat' && (
+          {/* 2. Global Team Collab Room */}
+          {currentNav === 'team_chat' && (
             <TeamChatView
               messages={chatMessages}
               team={team}
@@ -238,9 +210,71 @@ export function App() {
               onSendMessage={handleSendMessage}
               onSelectShot={(shot) => {
                 handleSelectShot(shot);
-                setCurrentView('shots');
+                setCurrentNav('project');
+                setActiveModule('shots');
               }}
             />
+          )}
+
+          {/* 3. Project Production Hub (Interactive Cards & Drilled-down Modules) */}
+          {currentNav === 'project' && (
+            <>
+              {activeModule === 'hub' && (
+                <ProjectHubView
+                  project={activeProject}
+                  shots={shots}
+                  scenes={scenes}
+                  storyboards={storyboards}
+                  audioTakes={audioTakes}
+                  renders={renders}
+                  onOpenModule={(mod) => setActiveModule(mod)}
+                />
+              )}
+
+              {activeModule === 'script' && (
+                <ScriptView
+                  scenes={scenes}
+                  team={team}
+                  onSaveScenes={handleSaveScenes}
+                />
+              )}
+
+              {activeModule === 'storyboard' && (
+                <StoryboardView
+                  frames={storyboards}
+                  fps={activeProject.fps}
+                  onAddFrame={handleAddStoryboardFrame}
+                />
+              )}
+
+              {activeModule === 'shots' && (
+                <ShotsView
+                  shots={shots}
+                  team={team}
+                  fps={activeProject.fps}
+                  selectedShot={selectedShot}
+                  onSelectShot={handleSelectShot}
+                  onUpdateStage={handleUpdateStage}
+                  onOpenNewShot={() => setIsNewShotModalOpen(true)}
+                />
+              )}
+
+              {activeModule === 'audio' && (
+                <AudioLabView
+                  takes={audioTakes}
+                  team={team}
+                  onSelectTake={handleSelectAudioTake}
+                />
+              )}
+
+              {activeModule === 'renders' && (
+                <RendersView
+                  renders={renders}
+                  team={team}
+                  onAddFeedback={handleAddRenderFeedback}
+                />
+              )}
+            </>
           )}
         </main>
 
@@ -251,7 +285,7 @@ export function App() {
             onClose={() => setIsInspectorOpen(false)}
             team={team}
             onUpdateStage={handleUpdateStage}
-            fps={project.fps}
+            fps={activeProject.fps}
           />
         )}
       </div>
@@ -279,7 +313,7 @@ export function App() {
       <ExportModal
         isOpen={isExportModalOpen}
         onClose={() => setIsExportModalOpen(false)}
-        project={project}
+        project={activeProject}
         shots={shots}
         team={team}
       />

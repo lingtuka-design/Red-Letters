@@ -9,18 +9,50 @@ import type {
   ChatMessage 
 } from '../types';
 
-export const INITIAL_PROJECT: Project = {
-  id: 'proj_aura_01',
-  title: 'The Clockwork Garden',
-  slug: 'the-clockwork-garden',
-  synopsis: 'In an isolated highland observatory, a reclusive botanist and her steam-powered automaton companion race against the coming eclipse to awaken a dormant bioluminescent seed that could restore sunlight to a dimming world.',
-  fps: 24,
-  aspectRatio: '2.39:1 (Anamorphic)',
-  resolution: '4K DCI (4096x1716)',
-  status: 'Production',
-  deadline: 'Nov 24, 2026',
-  targetDurationSec: 320, // 5m 20s
-};
+export const INITIAL_PROJECTS: Project[] = [
+  {
+    id: 'proj_aura_01',
+    title: 'The Clockwork Garden',
+    slug: 'the-clockwork-garden',
+    synopsis: 'In an isolated highland observatory, a reclusive botanist and her steam-powered automaton companion race against the coming eclipse to awaken a dormant bioluminescent seed that could restore sunlight to a dimming world.',
+    fps: 24,
+    aspectRatio: '2.39:1 (Anamorphic)',
+    resolution: '4K DCI (4096x1716)',
+    status: 'Production',
+    deadline: 'Nov 24, 2026',
+    targetDurationSec: 320,
+    coverImage: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=600&auto=format&fit=crop&q=80',
+    accentColor: '#d97706'
+  },
+  {
+    id: 'proj_aura_02',
+    title: 'Neon Ronin: Zero',
+    slug: 'neon-ronin-zero',
+    synopsis: 'In a rain-slicked cybernetic Kyoto, a decommissioned synthetic bodyguard protects an orphaned memory archivist while hunted by rogue syndicate mechs.',
+    fps: 24,
+    aspectRatio: '16:9 Cinema',
+    resolution: '4K UHD (3840x2160)',
+    status: 'Post-Production',
+    deadline: 'Dec 18, 2026',
+    targetDurationSec: 420,
+    coverImage: 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?w=600&auto=format&fit=crop&q=80',
+    accentColor: '#0284c7'
+  },
+  {
+    id: 'proj_aura_03',
+    title: 'The Lost Constellation',
+    slug: 'the-lost-constellation',
+    synopsis: 'A lyrical fairytale of a solitary cartographer mapping forgotten star clusters across a frozen celestial sea.',
+    fps: 24,
+    aspectRatio: '1.85:1 Flat',
+    resolution: '4K DCI (4096x2160)',
+    status: 'Pre-Production',
+    deadline: 'Jan 15, 2027',
+    targetDurationSec: 240,
+    coverImage: 'https://images.unsplash.com/photo-1507668077129-56e32842fceb?w=600&auto=format&fit=crop&q=80',
+    accentColor: '#7c3aed'
+  }
+];
 
 export const INITIAL_TEAM: TeamMember[] = [
   {
