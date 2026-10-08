@@ -1,0 +1,46 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-serif: 'Newsreader', Garamond, Georgia, serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+
+  --color-canvas-base: #fcfaf6;
+  --color-canvas-gradient: #f6efe3;
+  --color-porcelain: #ffffff;
+  --color-border-warm: #e9e3d8;
+  --color-amber-gold: #d97706;
+  --color-amber-rich: #b45309;
+}
+
+/* Custom warm minimalist scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #e2dbce;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #cfc6b5;
+}
+
+/* Editorial subtle glow */
+.editorial-glow {
+  box-shadow: 0 4px 24px -2px rgba(217, 119, 6, 0.08), 0 2px 8px -1px rgba(180, 83, 9, 0.04);
+}
+
+.card-warm-shadow {
+  box-shadow: 0 1px 3px 0 rgba(120, 113, 108, 0.05), 0 4px 16px -2px rgba(120, 113, 108, 0.04);
+}
+
+.floating-panel-shadow {
+  box-shadow: 0 10px 30px -4px rgba(68, 64, 60, 0.08), 0 4px 12px -2px rgba(68, 64, 60, 0.04);
+}
