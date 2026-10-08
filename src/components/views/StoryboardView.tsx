@@ -1,323 +1,437 @@
-import React, { useState } from 'react';
-import type { 
-  StoryboardFrame 
-} from '../../types';
+import React, { useState, useRef, useEffect } from 'react';
+import type { Project, UserAccount } from '../../types';
 import { 
-  Plus, 
-  Maximize2, 
-  Volume2, 
-  Camera, 
-  X
+  Bold, 
+  Italic, 
+  Underline, 
+  Strikethrough, 
+  AlignLeft, 
+  AlignCenter, 
+  AlignRight, 
+  List, 
+  ListOrdered, 
+  RotateCcw, 
+  RotateCw, 
+  Download, 
+  Copy, 
+  Check, 
+  FileText,
+  Camera,
+  Volume2,
+  Clapperboard,
+  Sparkles
 } from 'lucide-react';
 
 interface StoryboardViewProps {
-  frames: StoryboardFrame[];
-  fps: number;
-  onAddFrame: (frame: Omit<StoryboardFrame, 'id'>) => void;
+  project: Project;
+  currentUser: UserAccount;
+  onSaveStoryboard: (html: string) => void;
 }
 
+const DEFAULT_STORYBOARD_TEMPLATE = `
+<h2 style="font-size: 1.35rem; font-weight: bold; margin-bottom: 0.5rem; color: #1c1917;">STORYBOARD VISUAL FOLIO &amp; SHOT BREAKDOWN</h2>
+<p style="font-style: italic; color: #78716c; margin-bottom: 1.5rem;">Continuous Visual Beats, Framing &amp; Pacing Document</p>
+<h3 style="font-size: 1.15rem; font-weight: bold; margin-top: 1.5rem; margin-bottom: 0.5rem; color: #b45309;">[SEQUENCE 01: OPENING SEQUENCE]</h3>
+<p><strong>[SHOT 01 — Wide Establishing Shot]</strong></p>
+<p>Opening visual description of the environment, character placement, and atmospheric lighting...</p>
+<p><em>Camera:</em> 24fps Wide Angle Cine Lens, smooth horizontal drift.</p>
+<p><em>Audio Cue:</em> Atmospheric background ambiance and subtle musical motif.</p>
+`;
+
 export const StoryboardView: React.FC<StoryboardViewProps> = ({
-  frames,
-  fps,
-  onAddFrame
+  project,
+  currentUser,
+  onSaveStoryboard
 }) => {
-  const [activeLightbox, setActiveLightbox] = useState<StoryboardFrame | null>(null);
-  const [showAddModal, setShowAddModal] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const [saveStatus, setSaveStatus] = useState<string>('Saved');
+  const [wordCount, setWordCount] = useState<number>(0);
+  const [charCount, setCharCount] = useState<number>(0);
+  const editorRef = useRef<HTMLDivElement>(null);
 
-  // New Frame state
-  const [newShotNumber, setNewShotNumber] = useState('02D');
-  const [newShotType, setNewShotType] = useState<StoryboardFrame['shotType']>('Medium');
-  const [newCameraMovement, setNewCameraMovement] = useState<StoryboardFrame['cameraMovement']>('Slow Dolly In');
-  const [newAction, setNewAction] = useState('');
-  const [newAudio, setNewAudio] = useState('');
-  const [newDurationFrames, setNewDurationFrames] = useState(72);
-  const [newImageUrl, setNewImageUrl] = useState('https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=800&auto=format&fit=crop&q=80');
+  // Sync content when active project changes
+  useEffect(() => {
+    if (editorRef.current) {
+      const initialHtml = project.storyboardContentHtml || DEFAULT_STORYBOARD_TEMPLATE;
+      editorRef.current.innerHTML = initialHtml;
+      updateCounts();
+    }
+  }, [project.id]);
 
-  const handleCreateFrame = (e: React.FormEvent) => {
-    e.preventDefault();
-    onAddFrame({
-      projectId: 'proj_aura_01',
-      sceneId: 'sc_02',
-      shotNumber: newShotNumber,
-      imageUrl: newImageUrl,
-      cameraMovement: newCameraMovement,
-      shotType: newShotType,
-      durationFrames: Number(newDurationFrames),
-      actionDescription: newAction,
-      audioNotes: newAudio,
-      sequenceOrder: frames.length + 1
-    });
-    setShowAddModal(false);
-    setNewAction('');
-    setNewAudio('');
+  // Count words and characters from editor
+  const updateCounts = () => {
+    if (!editorRef.current) return;
+    const text = editorRef.current.innerText || '';
+    setCharCount(text.length);
+    const words = text.trim().split(/\s+/).filter(Boolean);
+    setWordCount(words.length);
   };
 
-  const totalFrames = frames.reduce((acc, f) => acc + f.durationFrames, 0);
-  const totalSec = (totalFrames / fps).toFixed(1);
+  // Execute formatting command
+  const executeCommand = (command: string, value: string | undefined = undefined) => {
+    document.execCommand(command, false, value);
+    if (editorRef.current) {
+      editorRef.current.focus();
+      handleEditorInput();
+    }
+  };
+
+  // Handle typing inside editor
+  const handleEditorInput = () => {
+    if (!editorRef.current) return;
+    setSaveStatus('Editing...');
+    updateCounts();
+
+    const htmlContent = editorRef.current.innerHTML;
+    onSaveStoryboard(htmlContent);
+
+    setTimeout(() => {
+      setSaveStatus('Auto-saved');
+    }, 600);
+  };
+
+  // Quick insertion helpers for storyboard elements
+  const insertStoryboardBlock = (type: 'sequence' | 'shot' | 'camera' | 'audio' | 'action') => {
+    if (!editorRef.current) return;
+    editorRef.current.focus();
+
+    if (type === 'sequence') {
+      document.execCommand(
+        'insertHTML',
+        false,
+        `<h3 style="font-size: 1.15rem; font-weight: bold; margin-top: 1.75rem; margin-bottom: 0.5rem; color: #b45309; border-bottom: 1px solid #fed7aa; padding-bottom: 0.25rem;">[SEQUENCE: NEW SEQUENCE TITLE]</h3><p>Describe sequence atmosphere and overall narrative objective...</p>`
+      );
+    } else if (type === 'shot') {
+      document.execCommand(
+        'insertHTML',
+        false,
+        `<p style="margin-top: 1.25rem; margin-bottom: 0.25rem;"><strong>[SHOT XX — Medium Shot • 72 frames (3.0s)]</strong></p><p style="margin-bottom: 0.5rem; line-height: 1.6;">Character action and visual motion beat breakdown...</p>`
+      );
+    } else if (type === 'camera') {
+      document.execCommand(
+        'insertHTML',
+        false,
+        `<p style="margin-bottom: 0.35rem; color: #44403c;"><em>Camera:</em> 50mm Anamorphic • Slow Dolly In towards subject at eye level.</p>`
+      );
+    } else if (type === 'audio') {
+      document.execCommand(
+        'insertHTML',
+        false,
+        `<p style="margin-bottom: 0.5rem; color: #57534e;"><em>Audio Cue:</em> Soft pneumatic hiss, ambient wind chime reverberation.</p>`
+      );
+    } else {
+      document.execCommand(
+        'insertHTML',
+        false,
+        `<p style="margin-bottom: 0.75rem; line-height: 1.6;">Visual beat and timing detail...</p>`
+      );
+    }
+
+    handleEditorInput();
+  };
+
+  // Copy full storyboard plain text to clipboard
+  const handleCopyStoryboard = () => {
+    if (!editorRef.current) return;
+    const plainText = editorRef.current.innerText || '';
+    navigator.clipboard.writeText(plainText);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  // Download Storyboard as formatted .txt file
+  const handleDownloadTxt = () => {
+    if (!editorRef.current) return;
+
+    // Convert HTML to clean readable plain text
+    const temp = document.createElement('div');
+    temp.innerHTML = editorRef.current.innerHTML;
+
+    temp.querySelectorAll('br').forEach(br => br.replaceWith('\n'));
+    temp.querySelectorAll('p, div, h1, h2, h3, h4').forEach(block => {
+      block.prepend('\n');
+      block.append('\n');
+    });
+    temp.querySelectorAll('li').forEach(li => {
+      li.prepend('\n• ');
+    });
+
+    const bodyText = (temp.textContent || temp.innerText || '')
+      .replace(/\n{3,}/g, '\n\n')
+      .trim();
+
+    const header = [
+      '======================================================================',
+      'RED LETTERS STUDIO — STORYBOARD PRODUCTION FOLIO',
+      `PROJECT: ${project.title.toUpperCase()}`,
+      `Created By: ${project.createdByName || project.createdBy}`,
+      `FPS: ${project.fps} | Status: ${project.status}`,
+      `Last Edited By: ${currentUser.name} (${currentUser.role})`,
+      '======================================================================\n\n'
+    ].join('\n');
+
+    const fullContent = header + bodyText;
+
+    const blob = new Blob([fullContent], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    const safeTitle = project.title.replace(/[^a-zA-Z0-9_-]/g, '_');
+    link.href = url;
+    link.download = `${safeTitle}_Storyboard.txt`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
 
   return (
     <div className="h-full flex flex-col overflow-hidden bg-[#fcfaf6]">
-      {/* Storyboard Top Bar */}
+      {/* 1. Top Bar: Title, Counts, Auto-save status, Actions */}
       <div className="h-14 border-b border-[#e9e3d8] bg-white px-6 flex items-center justify-between shrink-0">
         <div className="flex items-center space-x-3">
-          <span className="font-serif text-base font-semibold text-stone-900">
-            Storyboard Animatic Frames
-          </span>
-          <span className="text-xs text-stone-500 font-mono px-2 py-0.5 rounded bg-stone-100">
-            {frames.length} Sequenced Frames
-          </span>
-          <span className="hidden sm:inline-block text-xs text-stone-400 font-mono">
-            • {totalFrames} frames ({totalSec}s runtime)
+          <div className="flex items-center space-x-2">
+            <div className="w-7 h-7 rounded-lg bg-amber-100 flex items-center justify-center text-amber-800">
+              <FileText className="w-4 h-4 text-amber-700" />
+            </div>
+            <div>
+              <span className="font-serif text-sm font-semibold text-stone-900">
+                Storyboard Studio
+              </span>
+              <span className="text-xs text-stone-400 font-sans ml-2">
+                • {project.title} (Continuous Page)
+              </span>
+            </div>
+          </div>
+
+          <span className="hidden sm:inline-flex items-center text-[11px] font-mono text-stone-400 bg-stone-100 px-2 py-0.5 rounded">
+            {wordCount} words • {charCount} chars
           </span>
         </div>
 
-        <button
-          onClick={() => setShowAddModal(true)}
-          className="inline-flex items-center space-x-1.5 px-3.5 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-xs font-medium transition-colors shadow-xs"
-        >
-          <Plus className="w-3.5 h-3.5" />
-          <span>Add Storyboard Frame</span>
-        </button>
-      </div>
+        {/* Action Buttons: Status, Copy, Download .txt */}
+        <div className="flex items-center space-x-2.5 text-xs">
+          <span className="text-[11px] font-mono text-stone-400 bg-stone-100 px-2.5 py-1 rounded-md">
+            {saveStatus}
+          </span>
 
-      {/* Frame Grid */}
-      <div className="flex-1 overflow-y-auto p-6 md:p-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 max-w-7xl mx-auto">
-          {frames.map((frame) => {
-            const durationSec = (frame.durationFrames / fps).toFixed(1);
+          <button
+            onClick={handleCopyStoryboard}
+            className="inline-flex items-center space-x-1 px-3 py-1.5 rounded-lg border border-[#e9e3d8] hover:bg-stone-50 text-stone-700 text-xs font-medium transition-colors cursor-pointer"
+            title="Copy entire storyboard text"
+          >
+            {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5 text-stone-400" />}
+            <span>{copied ? 'Copied' : 'Copy'}</span>
+          </button>
 
-            return (
-              <div 
-                key={frame.id}
-                className="bg-white rounded-2xl border border-[#e9e3d8] overflow-hidden shadow-xs hover:shadow-md transition-all group flex flex-col justify-between"
-              >
-                <div>
-                  {/* Artwork Container */}
-                  <div className="relative aspect-video bg-stone-900 overflow-hidden cursor-pointer" onClick={() => setActiveLightbox(frame)}>
-                    <img 
-                      src={frame.imageUrl} 
-                      alt={`Shot ${frame.shotNumber}`} 
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/30 pointer-events-none" />
-
-                    {/* Frame Number Pill */}
-                    <div className="absolute top-3 left-3 px-2 py-0.5 rounded-md bg-black/75 backdrop-blur-md text-white font-mono text-xs font-semibold">
-                      Shot {frame.shotNumber}
-                    </div>
-
-                    {/* Duration */}
-                    <div className="absolute top-3 right-3 px-2 py-0.5 rounded-md bg-black/75 backdrop-blur-md text-amber-300 font-mono text-xs">
-                      {frame.durationFrames}f ({durationSec}s)
-                    </div>
-
-                    {/* Expand Button */}
-                    <div className="absolute bottom-3 right-3 p-1.5 rounded-lg bg-white/20 backdrop-blur-md text-white opacity-0 group-hover:opacity-100 transition-opacity">
-                      <Maximize2 className="w-3.5 h-3.5" />
-                    </div>
-
-                    {/* Camera Movement Tag */}
-                    <div className="absolute bottom-3 left-3 flex items-center space-x-1.5 text-[11px] font-medium text-stone-200">
-                      <Camera className="w-3 h-3 text-amber-400" />
-                      <span>{frame.cameraMovement}</span>
-                      <span className="text-stone-400">•</span>
-                      <span>{frame.shotType}</span>
-                    </div>
-                  </div>
-
-                  {/* Visual & Narrative Details */}
-                  <div className="p-4 space-y-2.5">
-                    {frame.dialogue && (
-                      <div className="p-2 rounded-lg bg-amber-50/70 border border-amber-200/50 text-xs font-medium text-amber-900 italic">
-                        "{frame.dialogue}"
-                      </div>
-                    )}
-
-                    <p className="text-xs text-stone-700 leading-relaxed font-sans line-clamp-2">
-                      {frame.actionDescription}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Audio notes footer */}
-                {frame.audioNotes && (
-                  <div className="px-4 py-2.5 bg-[#fcfaf6] border-t border-[#e9e3d8] flex items-center space-x-2 text-[11px] text-stone-500">
-                    <Volume2 className="w-3.5 h-3.5 text-stone-400 shrink-0" />
-                    <span className="truncate">{frame.audioNotes}</span>
-                  </div>
-                )}
-              </div>
-            );
-          })}
+          <button
+            onClick={handleDownloadTxt}
+            className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-stone-900 hover:bg-stone-800 text-white text-xs font-medium transition-colors cursor-pointer shadow-xs"
+            title="Download continuous storyboard as .txt file"
+          >
+            <Download className="w-3.5 h-3.5 text-amber-300" />
+            <span>Download .txt</span>
+          </button>
         </div>
       </div>
 
-      {/* Fullscreen Lightbox Modal */}
-      {activeLightbox && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 md:p-8">
-          <div className="bg-[#1c1917] border border-stone-700 text-stone-100 rounded-2xl max-w-4xl w-full overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
-            <div className="p-4 border-b border-stone-800 flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <span className="font-mono text-sm font-bold px-2 py-0.5 rounded bg-amber-500 text-stone-900">
-                  SHOT {activeLightbox.shotNumber}
-                </span>
-                <span className="text-sm font-medium text-stone-300">
-                  {activeLightbox.cameraMovement} — {activeLightbox.shotType}
-                </span>
-              </div>
-              <button
-                onClick={() => setActiveLightbox(null)}
-                className="p-1 rounded-lg hover:bg-stone-800 text-stone-400 hover:text-white"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
+      {/* 2. Rich Text Formatting Toolbar & Storyboard Tag Shortcuts */}
+      <div className="border-b border-[#e9e3d8] bg-white/80 backdrop-blur-xs px-6 py-2 flex flex-wrap items-center justify-between gap-2 shrink-0">
+        {/* Rich Text Format Controls */}
+        <div className="flex items-center space-x-1 flex-wrap">
+          {/* Paragraph Style Selector */}
+          <select
+            onChange={(e) => {
+              if (e.target.value) {
+                executeCommand('formatBlock', e.target.value);
+                e.target.value = '';
+              }
+            }}
+            defaultValue=""
+            className="text-xs bg-[#fcfaf6] border border-[#e9e3d8] rounded-lg px-2 py-1 text-stone-700 mr-1.5 focus:outline-none focus:ring-1 focus:ring-amber-500 cursor-pointer"
+          >
+            <option value="" disabled>Style...</option>
+            <option value="p">Paragraph</option>
+            <option value="h1">Heading 1 (Major)</option>
+            <option value="h2">Heading 2 (Sequence)</option>
+            <option value="h3">Heading 3 (Shot Beat)</option>
+            <option value="blockquote">Quote Block</option>
+          </select>
 
-            <div className="flex-1 bg-black flex items-center justify-center overflow-hidden">
-              <img 
-                src={activeLightbox.imageUrl} 
-                alt={`Shot ${activeLightbox.shotNumber}`} 
-                className="max-h-[60vh] w-auto object-contain"
-              />
-            </div>
+          {/* Bold, Italic, Underline, Strike */}
+          <button
+            onClick={() => executeCommand('bold')}
+            className="p-1.5 rounded hover:bg-stone-100 text-stone-700 transition-colors cursor-pointer"
+            title="Bold (Ctrl+B)"
+          >
+            <Bold className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => executeCommand('italic')}
+            className="p-1.5 rounded hover:bg-stone-100 text-stone-700 transition-colors cursor-pointer"
+            title="Italic (Ctrl+I)"
+          >
+            <Italic className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => executeCommand('underline')}
+            className="p-1.5 rounded hover:bg-stone-100 text-stone-700 transition-colors cursor-pointer"
+            title="Underline (Ctrl+U)"
+          >
+            <Underline className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => executeCommand('strikeThrough')}
+            className="p-1.5 rounded hover:bg-stone-100 text-stone-700 transition-colors cursor-pointer"
+            title="Strikethrough"
+          >
+            <Strikethrough className="w-4 h-4" />
+          </button>
 
-            <div className="p-5 bg-stone-900 border-t border-stone-800 space-y-2">
-              <div className="flex justify-between items-center text-xs text-stone-400 font-mono">
-                <span>Duration: {activeLightbox.durationFrames} frames ({(activeLightbox.durationFrames / fps).toFixed(2)}s)</span>
-                <span>Sequence #{activeLightbox.sequenceOrder}</span>
-              </div>
-              <p className="text-sm text-stone-200">
-                {activeLightbox.actionDescription}
-              </p>
-              {activeLightbox.audioNotes && (
-                <p className="text-xs text-amber-300/90 flex items-center space-x-1.5">
-                  <Volume2 className="w-3.5 h-3.5" />
-                  <span>Audio Cue: {activeLightbox.audioNotes}</span>
-                </p>
-              )}
+          <div className="w-[1px] h-4 bg-stone-200 mx-1" />
+
+          {/* Alignments */}
+          <button
+            onClick={() => executeCommand('justifyLeft')}
+            className="p-1.5 rounded hover:bg-stone-100 text-stone-700 transition-colors cursor-pointer"
+            title="Align Left"
+          >
+            <AlignLeft className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => executeCommand('justifyCenter')}
+            className="p-1.5 rounded hover:bg-stone-100 text-stone-700 transition-colors cursor-pointer"
+            title="Align Center"
+          >
+            <AlignCenter className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => executeCommand('justifyRight')}
+            className="p-1.5 rounded hover:bg-stone-100 text-stone-700 transition-colors cursor-pointer"
+            title="Align Right"
+          >
+            <AlignRight className="w-4 h-4" />
+          </button>
+
+          <div className="w-[1px] h-4 bg-stone-200 mx-1" />
+
+          {/* Lists */}
+          <button
+            onClick={() => executeCommand('insertUnorderedList')}
+            className="p-1.5 rounded hover:bg-stone-100 text-stone-700 transition-colors cursor-pointer"
+            title="Bulleted List"
+          >
+            <List className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => executeCommand('insertOrderedList')}
+            className="p-1.5 rounded hover:bg-stone-100 text-stone-700 transition-colors cursor-pointer"
+            title="Numbered List"
+          >
+            <ListOrdered className="w-4 h-4" />
+          </button>
+
+          <div className="w-[1px] h-4 bg-stone-200 mx-1" />
+
+          {/* Undo / Redo */}
+          <button
+            onClick={() => executeCommand('undo')}
+            className="p-1.5 rounded hover:bg-stone-100 text-stone-700 transition-colors cursor-pointer"
+            title="Undo"
+          >
+            <RotateCcw className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => executeCommand('redo')}
+            className="p-1.5 rounded hover:bg-stone-100 text-stone-700 transition-colors cursor-pointer"
+            title="Redo"
+          >
+            <RotateCw className="w-4 h-4" />
+          </button>
+        </div>
+
+        {/* Storyboard Block Quick Inserts */}
+        <div className="flex items-center space-x-1.5 flex-wrap">
+          <span className="text-[11px] text-stone-400 font-medium mr-1 uppercase tracking-wider hidden md:inline">
+            Insert:
+          </span>
+
+          <button
+            onClick={() => insertStoryboardBlock('sequence')}
+            className="inline-flex items-center space-x-1 px-2.5 py-1 rounded-md bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200/80 text-[11px] font-medium transition-colors cursor-pointer"
+            title="Insert new Sequence heading"
+          >
+            <Clapperboard className="w-3 h-3 text-amber-700" />
+            <span>+ Sequence</span>
+          </button>
+
+          <button
+            onClick={() => insertStoryboardBlock('shot')}
+            className="inline-flex items-center space-x-1 px-2.5 py-1 rounded-md bg-stone-100 hover:bg-stone-200 text-stone-800 text-[11px] font-medium transition-colors cursor-pointer"
+            title="Insert Shot block with duration tag"
+          >
+            <Sparkles className="w-3 h-3 text-stone-600" />
+            <span>+ Shot</span>
+          </button>
+
+          <button
+            onClick={() => insertStoryboardBlock('camera')}
+            className="inline-flex items-center space-x-1 px-2.5 py-1 rounded-md bg-stone-100 hover:bg-stone-200 text-stone-800 text-[11px] font-medium transition-colors cursor-pointer"
+            title="Insert Camera direction cue"
+          >
+            <Camera className="w-3 h-3 text-stone-600" />
+            <span>+ Camera</span>
+          </button>
+
+          <button
+            onClick={() => insertStoryboardBlock('audio')}
+            className="inline-flex items-center space-x-1 px-2.5 py-1 rounded-md bg-stone-100 hover:bg-stone-200 text-stone-800 text-[11px] font-medium transition-colors cursor-pointer"
+            title="Insert Audio / FX note"
+          >
+            <Volume2 className="w-3 h-3 text-stone-600" />
+            <span>+ Audio Cue</span>
+          </button>
+        </div>
+      </div>
+
+      {/* 3. Editor Viewport (Single Continuous Document Page) */}
+      <div className="flex-1 overflow-y-auto p-4 sm:p-8 md:p-10 flex justify-center bg-[#fcfaf6]">
+        <div className="w-full max-w-4xl bg-white rounded-2xl shadow-sm border border-[#e9e3d8] p-8 sm:p-12 md:p-16 min-h-[800px] flex flex-col">
+          {/* Document Header info */}
+          <div className="mb-6 pb-4 border-b border-dashed border-[#e9e3d8] flex flex-wrap items-center justify-between text-xs text-stone-400 gap-2">
+            <div className="flex items-center space-x-2">
+              <span className="font-serif italic font-semibold text-stone-700">
+                Red Letters Studio • Storyboard Master Folio
+              </span>
+              <span>•</span>
+              <span className="font-mono text-amber-800 bg-amber-50 px-2 py-0.5 rounded border border-amber-200/50">
+                {project.fps} FPS Continuous Reel
+              </span>
+            </div>
+            <div className="font-mono text-[11px]">
+              Active Author: <span className="font-semibold text-stone-600">{currentUser.name}</span>
             </div>
           </div>
-        </div>
-      )}
 
-      {/* Add Storyboard Frame Modal */}
-      {showAddModal && (
-        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl border border-[#e9e3d8] p-6 max-w-lg w-full shadow-lg">
-            <h3 className="font-serif text-lg font-semibold text-stone-900 mb-4">
-              Add New Storyboard Frame
-            </h3>
+          {/* Rich Text Continuous Document Editor */}
+          <div
+            ref={editorRef}
+            contentEditable
+            suppressContentEditableWarning
+            onInput={handleEditorInput}
+            className="flex-1 outline-none text-stone-900 leading-relaxed font-sans text-sm md:text-base prose max-w-none focus:outline-none"
+            style={{
+              minHeight: '650px',
+              lineHeight: 1.7
+            }}
+          />
 
-            <form onSubmit={handleCreateFrame} className="space-y-4">
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="text-xs font-medium text-stone-600 block mb-1">Shot Code</label>
-                  <input
-                    type="text"
-                    value={newShotNumber}
-                    onChange={(e) => setNewShotNumber(e.target.value)}
-                    className="w-full px-3 py-2 text-xs rounded-lg border border-[#e9e3d8] font-mono"
-                    placeholder="02D"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="text-xs font-medium text-stone-600 block mb-1">Duration (Frames)</label>
-                  <input
-                    type="number"
-                    value={newDurationFrames}
-                    onChange={(e) => setNewDurationFrames(Number(e.target.value))}
-                    className="w-full px-3 py-2 text-xs rounded-lg border border-[#e9e3d8] font-mono"
-                    required
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="text-xs font-medium text-stone-600 block mb-1">Shot Framing</label>
-                  <select
-                    value={newShotType}
-                    onChange={(e) => setNewShotType(e.target.value as any)}
-                    className="w-full px-3 py-2 text-xs rounded-lg border border-[#e9e3d8]"
-                  >
-                    <option value="Extreme Wide">Extreme Wide</option>
-                    <option value="Wide">Wide</option>
-                    <option value="Medium">Medium</option>
-                    <option value="Close Up">Close Up</option>
-                    <option value="Extreme Close Up">Extreme Close Up</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="text-xs font-medium text-stone-600 block mb-1">Camera Movement</label>
-                  <select
-                    value={newCameraMovement}
-                    onChange={(e) => setNewCameraMovement(e.target.value as any)}
-                    className="w-full px-3 py-2 text-xs rounded-lg border border-[#e9e3d8]"
-                  >
-                    <option value="Static Wide">Static Wide</option>
-                    <option value="Slow Dolly In">Slow Dolly In</option>
-                    <option value="Tracking Shot">Tracking Shot</option>
-                    <option value="Pan Right">Pan Right</option>
-                    <option value="Tilt Up">Tilt Up</option>
-                    <option value="Dutch Angle">Dutch Angle</option>
-                  </select>
-                </div>
-              </div>
-
-              <div>
-                <label className="text-xs font-medium text-stone-600 block mb-1">Artwork URL (Cloudflare R2 or Web)</label>
-                <input
-                  type="url"
-                  value={newImageUrl}
-                  onChange={(e) => setNewImageUrl(e.target.value)}
-                  className="w-full px-3 py-2 text-xs rounded-lg border border-[#e9e3d8] font-mono"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="text-xs font-medium text-stone-600 block mb-1">Visual Action & Camera Staging</label>
-                <textarea
-                  value={newAction}
-                  onChange={(e) => setNewAction(e.target.value)}
-                  rows={2}
-                  className="w-full px-3 py-2 text-xs rounded-lg border border-[#e9e3d8]"
-                  placeholder="Describe character motion, camera pan, or focal shift..."
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="text-xs font-medium text-stone-600 block mb-1">Audio / Foley Notes</label>
-                <input
-                  type="text"
-                  value={newAudio}
-                  onChange={(e) => setNewAudio(e.target.value)}
-                  className="w-full px-3 py-2 text-xs rounded-lg border border-[#e9e3d8]"
-                  placeholder="e.g. Steam hiss, metallic footsteps, brass bells"
-                />
-              </div>
-
-              <div className="flex justify-end space-x-2 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setShowAddModal(false)}
-                  className="px-3 py-1.5 text-xs text-stone-600 hover:bg-stone-100 rounded-lg"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-4 py-1.5 text-xs font-medium text-white bg-amber-600 hover:bg-amber-700 rounded-lg shadow-xs"
-                >
-                  Add Frame to Sequence
-                </button>
-              </div>
-            </form>
+          {/* Bottom Folio Footer */}
+          <div className="mt-12 pt-4 border-t border-[#e9e3d8] flex items-center justify-between text-[11px] text-stone-400 font-mono">
+            <span>Red Letters Animation Production Pipeline</span>
+            <span>Single-Page Continuous Storyboard • {project.title}</span>
           </div>
         </div>
-      )}
+      </div>
     </div>
   );
 };

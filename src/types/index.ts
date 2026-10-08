@@ -58,6 +58,7 @@ export interface Project {
   createdBy: string;
   createdByName: string;
   approvals?: ProjectApprovals;
+  storyboardContentHtml?: string;
 }
 
 export interface ScriptScene {

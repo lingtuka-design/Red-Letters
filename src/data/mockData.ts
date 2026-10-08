@@ -30,7 +30,8 @@ export const INITIAL_PROJECTS: Project[] = [
       maltea: true,
       valtea: false,
       biaktea: false
-    }
+    },
+    storyboardContentHtml: `<h2 style="font-size: 1.25rem; font-weight: bold; margin-bottom: 0.5rem; color: #1c1917;">STORYBOARD VISUAL FOLIO &amp; SHOT PACING</h2><p style="font-style: italic; color: #78716c; margin-bottom: 1.5rem;">The Clockwork Garden • 24fps Continuous Animatic &amp; Visual Notes</p><h3 style="font-size: 1.1rem; font-weight: bold; margin-top: 1.5rem; margin-bottom: 0.5rem; color: #b45309;">[SEQUENCE 01: HIGHLAND OBSERVATORY DAWN]</h3><p><strong>SHOT 01A — Extreme Wide (Static Establishing Shot)</strong></p><p>Opening crane shot of the solitary bronze observatory perched high atop the jagged cliff face. Wind howls through brass weather vanes. Thick purple-gray mist rolls across the pine valleys below.</p><p><em>Camera:</em> Static 50mm Anamorphic cine lens, slow fog drift.</p><p><em>Audio Cue:</em> Cold mountain wind, distant creak of massive clockwork counterweights.</p><p><strong>SHOT 01B — Wide Shot (Slow Dolly In)</strong></p><p>Interior of the observatory dome. Kaelia brushes frost off the antique brass telescope lens. Gearson the automaton stokes the miniature steam furnace in the background.</p><p><em>Camera:</em> Slow smooth tracking dolly forward through hanging botanical jars.</p><p><em>Dialogue:</em> KAELIA: &quot;Gearson, the glass is frosting over. The eclipse is moving faster than the charts predicted.&quot;</p><p><strong>SHOT 01C — Close Up (Pan Right)</strong></p><p>Focus on Gearson's optical ocular assembly. Inner gears click and whir as his glowing amber lens contracts.</p><p><em>Action:</em> Gearson reaches forward with his insulated leather glove and adjusts the steam valve.</p><h3 style="font-size: 1.1rem; font-weight: bold; margin-top: 1.75rem; margin-bottom: 0.5rem; color: #b45309;">[SEQUENCE 02: THE AWAKENING SEED]</h3><p><strong>SHOT 02A — Medium Shot (Low Angle Dutch Tilt)</strong></p><p>Kaelia uncaps the copper nutrient vial and drips radiant amber nectar into the central glass terrarium bell.</p><p><em>Lighting &amp; FX:</em> Faint turquoise bioluminescence pulses from the dormant root core, casting shifting patterns across the observatory ceiling.</p><p><strong>SHOT 02B — Macro Close-Up (Rack Focus)</strong></p><p>The dark husk of the seed splits with a crystalline snap. Delicate glowing tendrils unfurl in slow motion.</p><p><em>Audio Cue:</em> Soft glass chime harmonic resonance, pneumatic intake hiss.</p>`
   },
   {
     id: 'proj_aura_02',
@@ -51,7 +52,8 @@ export const INITIAL_PROJECTS: Project[] = [
       maltea: true,
       valtea: true,
       biaktea: false
-    }
+    },
+    storyboardContentHtml: `<h2 style="font-size: 1.25rem; font-weight: bold; margin-bottom: 0.5rem; color: #1c1917;">STORYBOARD VISUAL FOLIO &amp; PACING</h2><p style="font-style: italic; color: #78716c; margin-bottom: 1.5rem;">Neon Ronin: Zero • Cyberpunk Kyoto Sequence Breakdown</p><h3 style="font-size: 1.1rem; font-weight: bold; margin-top: 1.5rem; margin-bottom: 0.5rem; color: #0284c7;">[SEQUENCE 01: RAIN IN THE NEON DISTRICT]</h3><p><strong>SHOT 01A — High Angle Wide (Tracking Crane)</strong></p><p>Heavy neon rainfall pouring over holographic billboard reflections in flooded alleyways. Steam venting from cybernetic noodle stalls.</p><p><em>Camera:</em> High angled crane descending into narrow alley corridor.</p><p><strong>SHOT 01B — Close Up (Low Angle)</strong></p><p>Ren steps out from underneath dripping eaves. The crimson optic strip on his visor flickers to life.</p>`
   },
   {
     id: 'proj_aura_03',
@@ -72,7 +74,8 @@ export const INITIAL_PROJECTS: Project[] = [
       maltea: false,
       valtea: false,
       biaktea: true
-    }
+    },
+    storyboardContentHtml: `<h2 style="font-size: 1.25rem; font-weight: bold; margin-bottom: 0.5rem; color: #1c1917;">STORYBOARD VISUAL FOLIO &amp; PACING</h2><p style="font-style: italic; color: #78716c; margin-bottom: 1.5rem;">The Lost Constellation • Lyrical Celestial Breakdown</p><h3 style="font-size: 1.1rem; font-weight: bold; margin-top: 1.5rem; margin-bottom: 0.5rem; color: #7c3aed;">[SEQUENCE 01: THE FROZEN CELESTIAL SEA]</h3><p><strong>SHOT 01A — Extreme Wide (Panoramic Pan)</strong></p><p>A mirror-smooth sea of solid blue-black ice under a sky ablaze with ancient shimmering aurora borealis.</p><p><em>Camera:</em> Slow sweeping 35mm panoramic pan across the horizon.</p>`
   }
 ];
 

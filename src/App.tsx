@@ -4,7 +4,6 @@ import type {
   TeamMember, 
   UserAccount,
   ScriptScene, 
-  StoryboardFrame, 
   Shot, 
   AudioTake, 
   RenderFile, 
@@ -42,7 +41,6 @@ export function App() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [team, setTeam] = useState<TeamMember[]>([]);
   const [scenes, setScenes] = useState<ScriptScene[]>([]);
-  const [storyboards, setStoryboards] = useState<StoryboardFrame[]>([]);
   const [shots, setShots] = useState<Shot[]>([]);
   const [audioTakes, setAudioTakes] = useState<AudioTake[]>([]);
   const [renders, setRenders] = useState<RenderFile[]>([]);
@@ -64,11 +62,10 @@ export function App() {
   // Load initial data
   useEffect(() => {
     async function loadData() {
-      const [projList, teamData, sc, sb, sh, aud, rend, chat] = await Promise.all([
+      const [projList, teamData, sc, sh, aud, rend, chat] = await Promise.all([
         StudioApi.getProjects(),
         StudioApi.getTeam(),
         StudioApi.getScriptScenes(),
-        StudioApi.getStoryboards(),
         StudioApi.getShots(),
         StudioApi.getAudioTakes(),
         StudioApi.getRenders(),
@@ -81,7 +78,6 @@ export function App() {
       }
       setTeam(teamData);
       setScenes(sc);
-      setStoryboards(sb);
       setShots(sh);
       setAudioTakes(aud);
       setRenders(rend);
@@ -159,10 +155,9 @@ export function App() {
     setScenes(updatedScenes);
   };
 
-  const handleAddStoryboardFrame = async (frame: Omit<StoryboardFrame, 'id'>) => {
-    await StudioApi.addStoryboard(frame);
-    const updated = await StudioApi.getStoryboards();
-    setStoryboards(updated);
+  const handleSaveProjectStoryboard = async (projectId: string, contentHtml: string) => {
+    const updated = await StudioApi.updateProjectStoryboard(projectId, contentHtml);
+    setProjects(updated);
   };
 
   const handleSelectAudioTake = async (takeId: string) => {
@@ -305,9 +300,9 @@ export function App() {
 
               {activeModule === 'storyboard' && (
                 <StoryboardView
-                  frames={storyboards}
-                  fps={activeProject.fps}
-                  onAddFrame={handleAddStoryboardFrame}
+                  project={activeProject}
+                  currentUser={currentUser}
+                  onSaveStoryboard={(html) => handleSaveProjectStoryboard(activeProject.id, html)}
                 />
               )}
 

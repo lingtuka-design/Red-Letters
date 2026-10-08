@@ -22,8 +22,8 @@ import {
   INITIAL_CHAT_MESSAGES 
 } from '../data/mockData';
 
-// Cache invalidation to flush legacy 5 users
-const CURRENT_VERSION = 'v3_3users_clean';
+// Cache invalidation
+const CURRENT_VERSION = 'v4_storyboard_text';
 if (typeof window !== 'undefined') {
   try {
     if (localStorage.getItem('aura_version') !== CURRENT_VERSION) {
@@ -96,6 +96,21 @@ export const StudioApi = {
   async deleteProject(projectId: string): Promise<Project[]> {
     const projects = await this.getProjects();
     const updated = projects.filter(p => p.id !== projectId);
+    setLocal(STORAGE_KEYS.PROJECTS, updated);
+    return updated;
+  },
+
+  async updateProjectStoryboard(projectId: string, contentHtml: string): Promise<Project[]> {
+    const projects = await this.getProjects();
+    const updated = projects.map(p => {
+      if (p.id === projectId) {
+        return {
+          ...p,
+          storyboardContentHtml: contentHtml
+        };
+      }
+      return p;
+    });
     setLocal(STORAGE_KEYS.PROJECTS, updated);
     return updated;
   },

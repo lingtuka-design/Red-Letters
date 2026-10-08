@@ -24,7 +24,8 @@ import {
   Send,
   CheckCircle2,
   Clock,
-  Sparkles
+  Sparkles,
+  Download
 } from 'lucide-react';
 
 interface ScriptViewProps {
@@ -162,7 +163,7 @@ export const ScriptView: React.FC<ScriptViewProps> = ({
     const nextSceneNum = scenes.length + 1;
     const newScene: ScriptScene = {
       id: `sc_${Date.now()}`,
-      projectId: currentScene?.projectId || 'proj_aura_01',
+      projectId: project.id,
       sceneNumber: nextSceneNum,
       slugline: `INT. SCENE ${nextSceneNum.toString().padStart(2, '0')} - CONTINUOUS`,
       synopsis: 'Scene summary and narrative beat breakdown...',
@@ -195,6 +196,61 @@ export const ScriptView: React.FC<ScriptViewProps> = ({
     navigator.clipboard.writeText(plainText);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  // Download entire screenplay as clean .txt file
+  const handleDownloadTxt = () => {
+    const header = [
+      '======================================================================',
+      'RED LETTERS STUDIO — SCREENPLAY PRODUCTION DRAFT',
+      `PROJECT: ${project.title.toUpperCase()}`,
+      `Created By: ${project.createdByName || project.createdBy}`,
+      `FPS: ${project.fps} | Target Duration: ${project.targetDurationSec}s`,
+      `Status: ${project.status}`,
+      `Approvals: ${approvalCount}/3 Approved (Maltea: ${approvals.maltea ? 'YES' : 'NO'}, Valtea: ${approvals.valtea ? 'YES' : 'NO'}, Biaktea: ${approvals.biaktea ? 'YES' : 'NO'})`,
+      '======================================================================\n'
+    ].join('\n');
+
+    const scenesText = scenes.map((sc) => {
+      const temp = document.createElement('div');
+      temp.innerHTML = sc.contentHtml || elementsToHtml(sc.elements);
+
+      temp.querySelectorAll('br').forEach(br => br.replaceWith('\n'));
+      temp.querySelectorAll('p, div, h1, h2, h3, h4').forEach(block => {
+        block.prepend('\n');
+        block.append('\n');
+      });
+      temp.querySelectorAll('li').forEach(li => {
+        li.prepend('\n• ');
+      });
+
+      const bodyText = (temp.textContent || temp.innerText || '')
+        .replace(/\n{3,}/g, '\n\n')
+        .trim();
+
+      return [
+        '----------------------------------------------------------------------',
+        `SCENE ${sc.sceneNumber.toString().padStart(2, '0')}: ${sc.slugline}`,
+        `Synopsis: ${sc.synopsis || 'None'}`,
+        `Estimated Duration: ${sc.estimatedDurationSec}s`,
+        '----------------------------------------------------------------------\n',
+        bodyText,
+        '\n'
+      ].join('\n');
+    }).join('\n\n');
+
+    const fullContent = header + '\n' + scenesText;
+
+    const blob = new Blob([fullContent], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    const safeTitle = project.title.replace(/[^a-zA-Z0-9_-]/g, '_');
+    link.href = url;
+    link.download = `${safeTitle}_Screenplay.txt`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   };
 
   // Post comment on current scene
@@ -237,7 +293,7 @@ export const ScriptView: React.FC<ScriptViewProps> = ({
         </div>
 
         {/* Status & Actions */}
-        <div className="flex items-center space-x-3 text-xs">
+        <div className="flex items-center space-x-2.5 text-xs">
           <span className="text-[11px] font-mono text-stone-400 bg-stone-100 px-2.5 py-1 rounded-md">
             {savedStatus}
           </span>
@@ -245,9 +301,19 @@ export const ScriptView: React.FC<ScriptViewProps> = ({
           <button
             onClick={handleCopyScript}
             className="inline-flex items-center space-x-1 px-3 py-1.5 rounded-lg border border-[#e9e3d8] hover:bg-stone-50 text-stone-700 text-xs font-medium transition-colors cursor-pointer"
+            title="Copy current scene text"
           >
             {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5 text-stone-400" />}
             <span>{copied ? 'Copied' : 'Copy'}</span>
+          </button>
+
+          <button
+            onClick={handleDownloadTxt}
+            className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-stone-900 hover:bg-stone-800 text-white text-xs font-medium transition-colors cursor-pointer shadow-xs"
+            title="Download full screenplay as .txt file"
+          >
+            <Download className="w-3.5 h-3.5 text-amber-300" />
+            <span>Download .txt</span>
           </button>
 
           {scenes.length > 1 && (
