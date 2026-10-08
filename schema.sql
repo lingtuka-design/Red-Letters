@@ -11,17 +11,21 @@ CREATE TABLE IF NOT EXISTS projects (
   resolution TEXT DEFAULT '4K (3840x2160)',
   status TEXT DEFAULT 'Production',
   deadline TEXT,
+  created_by TEXT DEFAULT 'maltea',
+  created_by_name TEXT DEFAULT 'Maltea',
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS team_members (
   id TEXT PRIMARY KEY,
+  username TEXT UNIQUE NOT NULL,
+  password TEXT NOT NULL DEFAULT '12345',
   name TEXT NOT NULL,
-  role TEXT NOT NULL, -- 'Director' | 'Storyboard Lead' | 'Lead Animator' | 'Sound Designer' | 'Compositor'
+  role TEXT NOT NULL,
   avatar TEXT,
   email TEXT,
-  status TEXT DEFAULT 'online', -- 'online' | 'busy' | 'away'
+  status TEXT DEFAULT 'online',
   current_task TEXT
 );
 
@@ -133,3 +137,23 @@ CREATE TABLE IF NOT EXISTS chat_messages (
   FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE,
   FOREIGN KEY (author_id) REFERENCES team_members(id)
 );
+
+CREATE TABLE IF NOT EXISTS scene_comments (
+  id TEXT PRIMARY KEY,
+  scene_id TEXT NOT NULL,
+  author_id TEXT NOT NULL,
+  comment TEXT NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (scene_id) REFERENCES script_scenes(id) ON DELETE CASCADE,
+  FOREIGN KEY (author_id) REFERENCES team_members(id)
+);
+
+-- Delete all old users from database
+DELETE FROM team_members;
+
+-- Insert 3 authorized studio artists (maltea, valtea, biaktea)
+INSERT OR REPLACE INTO team_members (id, username, password, name, role, avatar, email, status, current_task) VALUES
+('maltea', 'maltea', '12345', 'Maltea', 'Director & Showrunner', 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80', 'maltea@aurastudios.com', 'online', 'Screenplay Directing & Final Cut Approval'),
+('valtea', 'valtea', '12345', 'Valtea', 'Lead Animator', 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80', 'valtea@aurastudios.com', 'online', 'Keyframing & Motion Review'),
+('biaktea', 'biaktea', '12345', 'Biaktea', 'Storyboard & Art Lead', 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80', 'biaktea@aurastudios.com', 'online', 'Script Breakdown & Storyboard Framing');
+

@@ -3,16 +3,18 @@ import {
   X, 
   Film 
 } from 'lucide-react';
-import type { Project } from '../../types';
+import type { Project, UserAccount } from '../../types';
 
 interface NewProjectModalProps {
   isOpen: boolean;
+  currentUser: UserAccount;
   onClose: () => void;
   onAddProject: (project: Omit<Project, 'id'>) => void;
 }
 
 export const NewProjectModal: React.FC<NewProjectModalProps> = ({
   isOpen,
+  currentUser,
   onClose,
   onAddProject
 }) => {
@@ -51,7 +53,14 @@ export const NewProjectModal: React.FC<NewProjectModalProps> = ({
       status,
       deadline,
       targetDurationSec: Number(targetDurationSec),
-      coverImage
+      coverImage,
+      createdBy: currentUser.id,
+      createdByName: currentUser.name,
+      approvals: {
+        maltea: currentUser.id === 'maltea',
+        valtea: currentUser.id === 'valtea',
+        biaktea: currentUser.id === 'biaktea'
+      }
     });
 
     onClose();
@@ -83,6 +92,20 @@ export const NewProjectModal: React.FC<NewProjectModalProps> = ({
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Creator Tag */}
+          <div className="flex items-center space-x-2.5 p-2.5 rounded-xl bg-amber-50/70 border border-amber-200/80">
+            <img
+              src={currentUser.avatar}
+              alt={currentUser.name}
+              className="w-6 h-6 rounded-full object-cover"
+            />
+            <div className="text-xs">
+              <span className="text-stone-500">Creating as: </span>
+              <strong className="text-stone-900 font-semibold">{currentUser.name}</strong>
+              <span className="text-amber-800 text-[11px] ml-1">({currentUser.role})</span>
+            </div>
+          </div>
+
           <div>
             <label className="text-xs font-semibold text-stone-700 block mb-1">
               Film Title *

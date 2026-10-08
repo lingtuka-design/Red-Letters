@@ -3,6 +3,7 @@ import type {
   Project, 
   Shot, 
   TeamMember,
+  UserAccount,
   ChatMessage,
   ProjectModule 
 } from '../../types';
@@ -15,38 +16,47 @@ import {
   ArrowRight, 
   Calendar, 
   MessageSquare,
-  Send
+  Send,
+  CheckCircle2,
+  Clock,
+  Sparkles
 } from 'lucide-react';
 
 interface ProjectHubViewProps {
   project: Project;
   shots: Shot[];
   team: TeamMember[];
+  currentUser: UserAccount;
   chatMessages: ChatMessage[];
   onOpenModule: (module: ProjectModule) => void;
   onSendMessage: (authorId: string, message: string, shotRefId?: string) => void;
   onSelectShot?: (shot: Shot) => void;
+  onToggleApproval?: (projectId: string, userId: 'maltea' | 'valtea' | 'biaktea') => void;
 }
 
 export const ProjectHubView: React.FC<ProjectHubViewProps> = ({
   project,
   shots,
   team,
+  currentUser,
   chatMessages,
   onOpenModule,
   onSendMessage,
-  onSelectShot
+  onSelectShot,
+  onToggleApproval
 }) => {
   const [chatInput, setChatInput] = useState('');
   const [selectedShotRef, setSelectedShotRef] = useState<string>('');
 
-  const currentMember = team[0]; // Sarah Vance (Director)
+  const approvals = project.approvals || { maltea: false, valtea: false, biaktea: false };
+  const approvalCount = [approvals.maltea, approvals.valtea, approvals.biaktea].filter(Boolean).length;
+  const isFullyApproved = approvalCount === 3;
 
   const handleSendChat = (e: React.FormEvent) => {
     e.preventDefault();
     if (!chatInput.trim()) return;
 
-    onSendMessage(currentMember.id, chatInput.trim(), selectedShotRef || undefined);
+    onSendMessage(currentUser.id, chatInput.trim(), selectedShotRef || undefined);
     setChatInput('');
     setSelectedShotRef('');
   };
@@ -101,9 +111,18 @@ export const ProjectHubView: React.FC<ProjectHubViewProps> = ({
       <div className="relative overflow-hidden rounded-2xl border border-[#e9e3d8] bg-gradient-to-br from-white via-[#fcfaf6] to-[#f6efe3] p-6 shadow-xs">
         <div className="relative z-10">
           <div className="flex flex-wrap items-center gap-2 mb-2">
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-amber-800 bg-amber-100/70 border border-amber-200/80 px-2.5 py-0.5 rounded-full">
+            <span className={`text-[11px] font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded-full ${
+              project.status === 'Approved'
+                ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
+                : 'text-amber-800 bg-amber-100/70 border border-amber-200/80'
+            }`}>
               {project.status}
             </span>
+            {project.createdByName && (
+              <span className="text-xs text-stone-700 bg-amber-50/80 px-2.5 py-0.5 rounded-md border border-amber-200/70 font-medium">
+                Created by <strong>{project.createdByName}</strong>
+              </span>
+            )}
             <span className="text-xs text-stone-500 font-mono px-2 py-0.5 rounded bg-white border border-[#e9e3d8]">
               {project.fps} FPS
             </span>
@@ -125,6 +144,79 @@ export const ProjectHubView: React.FC<ProjectHubViewProps> = ({
           <p className="text-xs text-stone-600 leading-relaxed font-sans max-w-3xl">
             {project.synopsis}
           </p>
+
+          {/* Multi-Artist Script Approval Widget */}
+          <div className="mt-4 pt-4 border-t border-[#e9e3d8]/80 flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <div className="flex items-center space-x-2 text-xs font-semibold text-stone-700 mb-1.5">
+                {isFullyApproved ? (
+                  <Sparkles className="w-4 h-4 text-emerald-600" />
+                ) : (
+                  <Clock className="w-4 h-4 text-amber-600" />
+                )}
+                <span>Screenplay & Script Approval ({approvalCount}/3 Artists)</span>
+                {isFullyApproved && (
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300">
+                    ★ ALL 3 APPROVED
+                  </span>
+                )}
+              </div>
+
+              <div className="flex items-center space-x-2">
+                {[
+                  { id: 'maltea' as const, name: 'Maltea', role: 'Director' },
+                  { id: 'valtea' as const, name: 'Valtea', role: 'Lead Animator' },
+                  { id: 'biaktea' as const, name: 'Biaktea', role: 'Storyboard' },
+                ].map(artist => {
+                  const approved = Boolean(approvals[artist.id]);
+                  const isCurrent = currentUser.id === artist.id;
+                  return (
+                    <button
+                      key={artist.id}
+                      type="button"
+                      onClick={() => isCurrent && onToggleApproval && onToggleApproval(project.id, artist.id)}
+                      className={`inline-flex items-center space-x-1.5 px-2.5 py-1 rounded-lg text-[11px] font-medium transition-all ${
+                        approved
+                          ? 'bg-emerald-50 text-emerald-800 border border-emerald-300 shadow-2xs'
+                          : 'bg-stone-100 text-stone-500 border border-stone-200'
+                      } ${isCurrent ? 'cursor-pointer hover:ring-2 hover:ring-amber-300' : 'cursor-default'}`}
+                      title={isCurrent ? `Click to toggle approval as ${artist.name}` : `${artist.name}: ${approved ? 'Approved' : 'Pending'}`}
+                    >
+                      {approved ? (
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                      ) : (
+                        <Clock className="w-3.5 h-3.5 text-stone-400" />
+                      )}
+                      <span>{artist.name}</span>
+                      <span className="text-[9px] opacity-80">
+                        {approved ? 'Approved' : 'Pending'}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {onToggleApproval && (
+              <button
+                type="button"
+                onClick={() => {
+                  if (currentUser.id === 'maltea' || currentUser.id === 'valtea' || currentUser.id === 'biaktea') {
+                    onToggleApproval(project.id, currentUser.id);
+                  }
+                }}
+                className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer shadow-2xs ${
+                  approvals[currentUser.id as 'maltea' | 'valtea' | 'biaktea']
+                    ? 'bg-stone-100 hover:bg-stone-200 text-stone-700 border border-stone-300'
+                    : 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-600/25'
+                }`}
+              >
+                {approvals[currentUser.id as 'maltea' | 'valtea' | 'biaktea']
+                  ? `Undo My Approval (${currentUser.name})`
+                  : `✓ Approve Script as ${currentUser.name}`}
+              </button>
+            )}
+          </div>
         </div>
 
         <div className="absolute -right-8 -bottom-10 w-64 h-64 rounded-full bg-amber-200/20 blur-3xl pointer-events-none" />
@@ -199,7 +291,7 @@ export const ProjectHubView: React.FC<ProjectHubViewProps> = ({
             ) : (
               projectMessages.map((msg) => {
                 const author = team.find(t => t.id === msg.authorId);
-                const isCurrentUser = msg.authorId === currentMember.id;
+                const isCurrentUser = msg.authorId === currentUser.id;
                 const referencedShot = msg.shotRefId ? shots.find(s => s.id === msg.shotRefId) : null;
 
                 return (

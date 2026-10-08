@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import type { 
   Project, 
   TeamMember, 
+  UserAccount,
   ScriptScene, 
   StoryboardFrame, 
   Shot, 
@@ -31,6 +32,7 @@ import { TeamChatView } from './components/views/TeamChatView';
 import { NewShotModal } from './components/Modals/NewShotModal';
 import { ExportModal } from './components/Modals/ExportModal';
 import { NewProjectModal } from './components/Modals/NewProjectModal';
+import { LoginModal } from './components/Modals/LoginModal';
 
 export function App() {
   const [currentNav, setCurrentNav] = useState<MainNavigation>('project');
@@ -54,6 +56,10 @@ export function App() {
   const [isNewShotModalOpen, setIsNewShotModalOpen] = useState(false);
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
   const [isNewProjectModalOpen, setIsNewProjectModalOpen] = useState(false);
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+
+  // Authenticated Artist Account (Default: maltea)
+  const [currentUser, setCurrentUser] = useState<UserAccount>(() => StudioApi.getCurrentUser());
 
   // Load initial data
   useEffect(() => {
@@ -110,6 +116,26 @@ export function App() {
         setCurrentNav('studio_overview');
       }
     }
+  };
+
+  const handleLogin = (user: UserAccount) => {
+    StudioApi.setCurrentUser(user);
+    setCurrentUser(user);
+  };
+
+  const handleToggleScriptApproval = async (projectId: string, userId: 'maltea' | 'valtea' | 'biaktea') => {
+    const updated = await StudioApi.toggleScriptApproval(projectId, userId);
+    setProjects(updated);
+  };
+
+  const handleAddSceneComment = async (sceneId: string, commentText: string) => {
+    const updated = await StudioApi.addSceneComment(sceneId, commentText, currentUser);
+    setScenes(updated);
+  };
+
+  const handleDeleteSceneComment = async (sceneId: string, commentId: string) => {
+    const updated = await StudioApi.deleteSceneComment(sceneId, commentId);
+    setScenes(updated);
   };
 
   const handleUpdateStage = async (shotId: string, stage: ProductionStage) => {
@@ -192,6 +218,8 @@ export function App() {
         project={activeProject}
         team={team}
         shots={shots}
+        currentUser={currentUser}
+        onOpenLogin={() => setIsLoginModalOpen(true)}
         onOpenNewShot={() => setIsNewShotModalOpen(true)}
         onOpenExport={() => setIsExportModalOpen(true)}
         onBackToProjectHub={() => setActiveModule('hub')}
@@ -231,6 +259,7 @@ export function App() {
             <TeamChatView
               messages={chatMessages}
               team={team}
+              currentUser={currentUser}
               shots={shots}
               onSendMessage={handleSendMessage}
               onSelectShot={(shot) => {
@@ -249,9 +278,11 @@ export function App() {
                   project={activeProject}
                   shots={shots}
                   team={team}
+                  currentUser={currentUser}
                   chatMessages={chatMessages}
                   onOpenModule={(mod) => setActiveModule(mod)}
                   onSendMessage={handleSendMessage}
+                  onToggleApproval={handleToggleScriptApproval}
                   onSelectShot={(shot) => {
                     handleSelectShot(shot);
                     setActiveModule('shots');
@@ -261,9 +292,14 @@ export function App() {
 
               {activeModule === 'script' && (
                 <ScriptView
+                  project={activeProject}
                   scenes={scenes}
                   team={team}
+                  currentUser={currentUser}
                   onSaveScenes={handleSaveScenes}
+                  onToggleApproval={handleToggleScriptApproval}
+                  onAddComment={handleAddSceneComment}
+                  onDeleteComment={handleDeleteSceneComment}
                 />
               )}
 
@@ -331,6 +367,7 @@ export function App() {
       {/* New Project Modal */}
       <NewProjectModal
         isOpen={isNewProjectModalOpen}
+        currentUser={currentUser}
         onClose={() => setIsNewProjectModalOpen(false)}
         onAddProject={handleAddProject}
       />
@@ -351,6 +388,14 @@ export function App() {
         project={activeProject}
         shots={shots}
         team={team}
+      />
+
+      {/* Artist Login / Account Switcher Modal */}
+      <LoginModal
+        isOpen={isLoginModalOpen}
+        currentUser={currentUser}
+        onClose={() => setIsLoginModalOpen(false)}
+        onLogin={handleLogin}
       />
     </div>
   );

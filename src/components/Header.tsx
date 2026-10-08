@@ -9,7 +9,7 @@ import {
   ChevronLeft,
   ChevronRight
 } from 'lucide-react';
-import type { Project, TeamMember, Shot, MainNavigation, ProjectModule } from '../types';
+import type { Project, TeamMember, UserAccount, Shot, MainNavigation, ProjectModule } from '../types';
 
 interface HeaderProps {
   currentNav: MainNavigation;
@@ -17,6 +17,8 @@ interface HeaderProps {
   project: Project;
   team: TeamMember[];
   shots: Shot[];
+  currentUser: UserAccount;
+  onOpenLogin: () => void;
   onOpenNewShot: () => void;
   onOpenExport: () => void;
   onBackToProjectHub: () => void;
@@ -29,6 +31,8 @@ export const Header: React.FC<HeaderProps> = ({
   project,
   team,
   shots,
+  currentUser,
+  onOpenLogin,
   onOpenNewShot,
   onOpenExport,
   onBackToProjectHub
@@ -137,7 +141,31 @@ export const Header: React.FC<HeaderProps> = ({
 
       {/* Right Actions & Team Presence */}
       <div className="flex items-center space-x-4">
-        {/* Indie Team Stack (5 Members) */}
+        {/* Active Logged-in Artist Profile & Switcher */}
+        <button
+          onClick={onOpenLogin}
+          className="flex items-center space-x-2.5 px-2.5 py-1.5 rounded-xl border border-[#e9e3d8] bg-[#fcfaf6] hover:bg-white hover:border-amber-300 transition-all cursor-pointer group shadow-2xs"
+          title="Click to switch artist account or log in"
+        >
+          <div className="relative">
+            <img
+              src={currentUser.avatar}
+              alt={currentUser.name}
+              className="w-7 h-7 rounded-full object-cover ring-1 ring-amber-300"
+            />
+            <span className="absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full bg-emerald-500 ring-1 ring-white" />
+          </div>
+          <div className="text-left hidden sm:block">
+            <div className="text-xs font-semibold text-stone-800 leading-tight group-hover:text-amber-800 transition-colors">
+              {currentUser.name}
+            </div>
+            <div className="text-[10px] text-stone-400 leading-tight">
+              {currentUser.username === 'maltea' ? 'Director' : currentUser.username === 'valtea' ? 'Lead Animator' : 'Storyboard'}
+            </div>
+          </div>
+        </button>
+
+        {/* Indie Team Stack (3 Members) */}
         <div className="hidden sm:flex items-center -space-x-2 hover:space-x-1 transition-all duration-200 p-1 rounded-full bg-[#fcfaf6] border border-[#e9e3d8]/80">
           {team.map((m) => (
             <div 

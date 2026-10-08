@@ -12,12 +12,34 @@ export type ShotComplexity = 'Simple' | 'Normal' | 'Complex' | 'Hero';
 
 export interface TeamMember {
   id: string;
+  username: string;
   name: string;
-  role: 'Director' | 'Storyboard Lead' | 'Lead Animator' | 'Sound Designer' | 'Compositor';
+  role: string;
   avatar: string;
   email: string;
   status: 'online' | 'busy' | 'away';
   currentTask: string;
+}
+
+export interface UserAccount extends TeamMember {
+  password: string;
+}
+
+export interface SceneComment {
+  id: string;
+  sceneId: string;
+  authorId: string;
+  authorName: string;
+  authorRole: string;
+  authorAvatar: string;
+  comment: string;
+  createdAt: string;
+}
+
+export interface ProjectApprovals {
+  maltea?: boolean;
+  valtea?: boolean;
+  biaktea?: boolean;
 }
 
 export interface Project {
@@ -28,11 +50,14 @@ export interface Project {
   fps: number;
   aspectRatio: string;
   resolution: string;
-  status: 'Pre-Production' | 'Production' | 'Post-Production' | 'Final Polish';
+  status: 'Pre-Production' | 'Production' | 'Post-Production' | 'Final Polish' | 'Approved';
   deadline: string;
   targetDurationSec: number;
   coverImage?: string;
   accentColor?: string;
+  createdBy: string;
+  createdByName: string;
+  approvals?: ProjectApprovals;
 }
 
 export interface ScriptScene {
@@ -48,6 +73,7 @@ export interface ScriptScene {
     text: string;
     character?: string;
   }[];
+  comments?: SceneComment[];
 }
 
 export interface StoryboardFrame {

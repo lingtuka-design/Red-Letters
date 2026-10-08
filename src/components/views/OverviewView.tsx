@@ -158,10 +158,17 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
                   <div className="absolute top-2.5 left-2.5 px-2 py-0.5 rounded-md bg-black/70 backdrop-blur-md text-[10px] text-white font-mono">
                     {proj.fps} FPS • {proj.aspectRatio}
                   </div>
-                  <div className="absolute bottom-2.5 left-2.5 right-2.5">
-                    <span className="text-[9px] uppercase tracking-wider font-semibold px-2 py-0.5 rounded bg-amber-500/90 text-stone-900">
+                  <div className="absolute bottom-2.5 left-2.5 right-2.5 flex items-center justify-between">
+                    <span className={`text-[9px] uppercase tracking-wider font-semibold px-2 py-0.5 rounded ${
+                      proj.status === 'Approved' ? 'bg-emerald-500 text-white' : 'bg-amber-500/90 text-stone-900'
+                    }`}>
                       {proj.status}
                     </span>
+                    {proj.createdByName && (
+                      <span className="text-[10px] text-white/90 bg-black/60 px-2 py-0.5 rounded backdrop-blur-xs font-sans">
+                        by {proj.createdByName}
+                      </span>
+                    )}
                   </div>
                 </div>
 
@@ -255,7 +262,7 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center space-x-2">
               <TrendingUp className="w-4 h-4 text-stone-500" />
-              <h2 className="text-sm font-semibold text-stone-900">Indie Team Roster (5 Artists)</h2>
+              <h2 className="text-sm font-semibold text-stone-900">Indie Team Roster (3 Artists)</h2>
             </div>
             <button
               onClick={onOpenTeamChat}

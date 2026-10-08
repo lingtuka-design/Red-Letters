@@ -175,15 +175,18 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
                     <div className="flex items-center space-x-2 mt-1">
                       <span className={`text-[9px] uppercase tracking-wider font-semibold px-1.5 py-0.5 rounded ${
+                        proj.status === 'Approved' ? 'bg-emerald-50 text-emerald-800 border border-emerald-200/60' :
                         proj.status === 'Production' ? 'bg-amber-50 text-amber-800 border border-amber-200/50' :
                         proj.status === 'Post-Production' ? 'bg-sky-50 text-sky-800 border border-sky-200/50' :
                         'bg-purple-50 text-purple-800 border border-purple-200/50'
                       }`}>
                         {proj.status}
                       </span>
-                      <span className="text-[10px] text-stone-400 font-mono">
-                        {proj.fps}fps
-                      </span>
+                      {proj.createdByName && (
+                        <span className="text-[10px] text-stone-500 font-medium truncate">
+                          by {proj.createdByName}
+                        </span>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -198,7 +201,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         <div className="flex items-center justify-between mb-2 px-1">
           <div className="flex items-center space-x-1.5 text-[11px] font-semibold uppercase tracking-wider text-stone-500">
             <Users className="w-3.5 h-3.5 text-stone-400" />
-            <span>Indie Team (5)</span>
+            <span>Indie Team (3)</span>
           </div>
           <span className="text-[10px] font-mono text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200/60">
             3 Active

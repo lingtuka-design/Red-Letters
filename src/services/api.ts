@@ -1,6 +1,8 @@
 import type { 
   Project, 
   TeamMember, 
+  UserAccount,
+  SceneComment,
   ScriptScene, 
   StoryboardFrame, 
   Shot, 
@@ -11,6 +13,7 @@ import type {
 import { 
   INITIAL_PROJECTS, 
   INITIAL_TEAM, 
+  USER_ACCOUNTS,
   INITIAL_SCRIPT_SCENES, 
   INITIAL_STORYBOARD_FRAMES, 
   INITIAL_SHOTS, 
@@ -19,8 +22,21 @@ import {
   INITIAL_CHAT_MESSAGES 
 } from '../data/mockData';
 
+// Cache invalidation to flush legacy 5 users
+const CURRENT_VERSION = 'v3_3users_clean';
+if (typeof window !== 'undefined') {
+  try {
+    if (localStorage.getItem('aura_version') !== CURRENT_VERSION) {
+      localStorage.clear();
+      localStorage.setItem('aura_version', CURRENT_VERSION);
+    }
+  } catch {}
+}
+
 // Storage keys
 const STORAGE_KEYS = {
+  VERSION: 'aura_version',
+  CURRENT_USER: 'aura_current_user',
   PROJECTS: 'aura_projects',
   SELECTED_PROJECT_ID: 'aura_selected_project_id',
   TEAM: 'aura_team',
@@ -80,6 +96,54 @@ export const StudioApi = {
   async deleteProject(projectId: string): Promise<Project[]> {
     const projects = await this.getProjects();
     const updated = projects.filter(p => p.id !== projectId);
+    setLocal(STORAGE_KEYS.PROJECTS, updated);
+    return updated;
+  },
+
+  // User Authentication & Session
+  getCurrentUser(): UserAccount {
+    return getLocal<UserAccount>(STORAGE_KEYS.CURRENT_USER, USER_ACCOUNTS[0]);
+  },
+
+  setCurrentUser(user: UserAccount): void {
+    setLocal(STORAGE_KEYS.CURRENT_USER, user);
+  },
+
+  getUserAccounts(): UserAccount[] {
+    return USER_ACCOUNTS;
+  },
+
+  login(username: string, password: string): UserAccount | null {
+    const found = USER_ACCOUNTS.find(
+      u => u.username.toLowerCase() === username.trim().toLowerCase() && u.password === password.trim()
+    );
+    if (found) {
+      this.setCurrentUser(found);
+      return found;
+    }
+    return null;
+  },
+
+  // Toggle Project Script Approval by Maltea, Valtea, or Biaktea
+  async toggleScriptApproval(projectId: string, userId: 'maltea' | 'valtea' | 'biaktea'): Promise<Project[]> {
+    const projects = await this.getProjects();
+    const updated = projects.map(p => {
+      if (p.id === projectId) {
+        const approvals = { ...(p.approvals || { maltea: false, valtea: false, biaktea: false }) };
+        approvals[userId] = !approvals[userId];
+        
+        // If all 3 approved, project status becomes 'Approved'
+        const allApproved = Boolean(approvals.maltea && approvals.valtea && approvals.biaktea);
+        const newStatus: Project['status'] = allApproved ? 'Approved' : (p.status === 'Approved' ? 'Production' : p.status);
+
+        return {
+          ...p,
+          approvals,
+          status: newStatus
+        };
+      }
+      return p;
+    });
     setLocal(STORAGE_KEYS.PROJECTS, updated);
     return updated;
   },
@@ -146,6 +210,48 @@ export const StudioApi = {
 
   async saveScriptScenes(scenes: ScriptScene[]): Promise<void> {
     setLocal(STORAGE_KEYS.SCENES, scenes);
+  },
+
+  async addSceneComment(sceneId: string, commentText: string, user: UserAccount): Promise<ScriptScene[]> {
+    const scenes = await this.getScriptScenes();
+    const newComment: SceneComment = {
+      id: `cm_${Date.now()}`,
+      sceneId,
+      authorId: user.id,
+      authorName: user.name,
+      authorRole: user.role,
+      authorAvatar: user.avatar,
+      comment: commentText.trim(),
+      createdAt: 'Just now'
+    };
+
+    const updated = scenes.map(s => {
+      if (s.id === sceneId) {
+        return {
+          ...s,
+          comments: [...(s.comments || []), newComment]
+        };
+      }
+      return s;
+    });
+
+    setLocal(STORAGE_KEYS.SCENES, updated);
+    return updated;
+  },
+
+  async deleteSceneComment(sceneId: string, commentId: string): Promise<ScriptScene[]> {
+    const scenes = await this.getScriptScenes();
+    const updated = scenes.map(s => {
+      if (s.id === sceneId) {
+        return {
+          ...s,
+          comments: (s.comments || []).filter(c => c.id !== commentId)
+        };
+      }
+      return s;
+    });
+    setLocal(STORAGE_KEYS.SCENES, updated);
+    return updated;
   },
 
   // Storyboard Frames

@@ -1,6 +1,7 @@
 import type { 
   Project, 
   TeamMember, 
+  UserAccount,
   ScriptScene, 
   StoryboardFrame, 
   Shot, 
@@ -22,7 +23,14 @@ export const INITIAL_PROJECTS: Project[] = [
     deadline: 'Nov 24, 2026',
     targetDurationSec: 320,
     coverImage: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=600&auto=format&fit=crop&q=80',
-    accentColor: '#d97706'
+    accentColor: '#d97706',
+    createdBy: 'maltea',
+    createdByName: 'Maltea',
+    approvals: {
+      maltea: true,
+      valtea: false,
+      biaktea: false
+    }
   },
   {
     id: 'proj_aura_02',
@@ -36,7 +44,14 @@ export const INITIAL_PROJECTS: Project[] = [
     deadline: 'Dec 18, 2026',
     targetDurationSec: 420,
     coverImage: 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?w=600&auto=format&fit=crop&q=80',
-    accentColor: '#0284c7'
+    accentColor: '#0284c7',
+    createdBy: 'valtea',
+    createdByName: 'Valtea',
+    approvals: {
+      maltea: true,
+      valtea: true,
+      biaktea: false
+    }
   },
   {
     id: 'proj_aura_03',
@@ -50,55 +65,83 @@ export const INITIAL_PROJECTS: Project[] = [
     deadline: 'Jan 15, 2027',
     targetDurationSec: 240,
     coverImage: 'https://images.unsplash.com/photo-1507668077129-56e32842fceb?w=600&auto=format&fit=crop&q=80',
-    accentColor: '#7c3aed'
+    accentColor: '#7c3aed',
+    createdBy: 'biaktea',
+    createdByName: 'Biaktea',
+    approvals: {
+      maltea: false,
+      valtea: false,
+      biaktea: true
+    }
+  }
+];
+
+export const USER_ACCOUNTS: UserAccount[] = [
+  {
+    id: 'maltea',
+    username: 'maltea',
+    password: '12345',
+    name: 'Maltea',
+    role: 'Director & Showrunner',
+    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+    email: 'maltea@aurastudios.com',
+    status: 'online',
+    currentTask: 'Screenplay Directing & Final Cut Approval'
+  },
+  {
+    id: 'valtea',
+    username: 'valtea',
+    password: '12345',
+    name: 'Valtea',
+    role: 'Lead Animator',
+    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
+    email: 'valtea@aurastudios.com',
+    status: 'online',
+    currentTask: 'Keyframing & Motion Review'
+  },
+  {
+    id: 'biaktea',
+    username: 'biaktea',
+    password: '12345',
+    name: 'Biaktea',
+    role: 'Storyboard & Art Lead',
+    avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80',
+    email: 'biaktea@aurastudios.com',
+    status: 'online',
+    currentTask: 'Script Breakdown & Storyboard Framing'
   }
 ];
 
 export const INITIAL_TEAM: TeamMember[] = [
   {
-    id: 'user_sarah',
-    name: 'Sarah Vance',
-    role: 'Director',
+    id: 'maltea',
+    username: 'maltea',
+    name: 'Maltea',
+    role: 'Director & Showrunner',
     avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
-    email: 'sarah@aurastudios.com',
+    email: 'maltea@aurastudios.com',
     status: 'online',
-    currentTask: 'Reviewing Scene 02 Color Grade'
+    currentTask: 'Screenplay Directing & Final Cut Approval'
   },
   {
-    id: 'user_kenji',
-    name: 'Kenji Takahashi',
+    id: 'valtea',
+    username: 'valtea',
+    name: 'Valtea',
     role: 'Lead Animator',
     avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
-    email: 'kenji@aurastudios.com',
+    email: 'valtea@aurastudios.com',
     status: 'online',
-    currentTask: 'Keyframing automaton gear mechanism'
+    currentTask: 'Keyframing & Motion Review'
   },
   {
-    id: 'user_leo',
-    name: 'Leo Moreno',
-    role: 'Storyboard Lead',
+    id: 'biaktea',
+    username: 'biaktea',
+    name: 'Biaktea',
+    role: 'Storyboard & Art Lead',
     avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80',
-    email: 'leo@aurastudios.com',
-    status: 'busy',
-    currentTask: 'Scene 03 action beat thumbnails'
-  },
-  {
-    id: 'user_maya',
-    name: 'Maya Raman',
-    role: 'Sound Designer',
-    avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=150&auto=format&fit=crop&q=80',
-    email: 'maya@aurastudios.com',
+    email: 'biaktea@aurastudios.com',
     status: 'online',
-    currentTask: 'Foley layering: Brass windchimes'
-  },
-  {
-    id: 'user_alex',
-    name: 'Alex Davies',
-    role: 'Compositor',
-    avatar: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=150&auto=format&fit=crop&q=80',
-    email: 'alex@aurastudios.com',
-    status: 'away',
-    currentTask: 'Volumetric mist lighting pass'
+    currentTask: 'Script Breakdown & Storyboard Framing'
   }
 ];
 
@@ -117,6 +160,38 @@ export const INITIAL_SCRIPT_SCENES: ScriptScene[] = [
       { type: 'character', text: 'ARIA' },
       { type: 'parenthetical', text: '(whispering to herself, tightening leather bracer)' },
       { type: 'dialogue', text: 'Forty-seven minutes until the alignment. If the solar prisms don\'t engage today, the seedlings freeze.' }
+    ],
+    comments: [
+      {
+        id: 'cm_01',
+        sceneId: 'sc_01',
+        authorId: 'maltea',
+        authorName: 'Maltea',
+        authorRole: 'Director & Showrunner',
+        authorAvatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+        comment: 'He scene-ah hian dawn light a lo chhuah dawn vangin amber colour hi a langsar tawk tur a ni.',
+        createdAt: 'Today, 10:30 AM'
+      },
+      {
+        id: 'cm_02',
+        sceneId: 'sc_01',
+        authorId: 'biaktea',
+        authorName: 'Biaktea',
+        authorRole: 'Storyboard & Art Lead',
+        authorAvatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80',
+        comment: 'Observatory dome inhawng lai framing hi extreme wide-in ka lo draw tawh e, shot 01A nen a inmil thlap.',
+        createdAt: 'Today, 11:15 AM'
+      },
+      {
+        id: 'cm_03',
+        sceneId: 'sc_01',
+        authorId: 'valtea',
+        authorName: 'Valtea',
+        authorRole: 'Lead Animator',
+        authorAvatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
+        comment: 'Gear inher animation timing hi 42 seconds chhung atan a tawk viau, keyframe block ka lo siam dawn nia.',
+        createdAt: 'Today, 11:45 AM'
+      }
     ]
   },
   {
@@ -135,6 +210,28 @@ export const INITIAL_SCRIPT_SCENES: ScriptScene[] = [
       { type: 'dialogue', text: '♪ Clink-whirrr-chime! ♪' },
       { type: 'character', text: 'ARIA' },
       { type: 'dialogue', text: 'Easy, Cog. Angle the focal ring fifteen degrees west. We can\'t scorch the petals before they drink the light.' }
+    ],
+    comments: [
+      {
+        id: 'cm_04',
+        sceneId: 'sc_02',
+        authorId: 'maltea',
+        authorName: 'Maltea',
+        authorRole: 'Director & Showrunner',
+        authorAvatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+        comment: 'Cog automaton chet vel dan hi cute deuh si, mechanical precision nei bawk se ka duh.',
+        createdAt: 'Today, 12:00 PM'
+      },
+      {
+        id: 'cm_05',
+        sceneId: 'sc_02',
+        authorId: 'valtea',
+        authorName: 'Valtea',
+        authorRole: 'Lead Animator',
+        authorAvatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
+        comment: 'A ke 4 kal dan (quadruped walk cycle) hi secondary motion nen ka lo animate ang e.',
+        createdAt: 'Today, 12:20 PM'
+      }
     ]
   },
   {
@@ -149,6 +246,18 @@ export const INITIAL_SCRIPT_SCENES: ScriptScene[] = [
       { type: 'action', text: 'The massive pendulum groans to a sudden halt. Tremors shake the catwalk. A flock of clockwork finches erupts from the eaves.' },
       { type: 'character', text: 'ARIA' },
       { type: 'dialogue', text: 'Cog, hold your position! The flywheel torque is at maximum!' }
+    ],
+    comments: [
+      {
+        id: 'cm_06',
+        sceneId: 'sc_03',
+        authorId: 'biaktea',
+        authorName: 'Biaktea',
+        authorRole: 'Storyboard & Art Lead',
+        authorAvatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80',
+        comment: 'Gear jam lai hi high-tension vertigo angle in ka lo draw e.',
+        createdAt: 'Today, 01:10 PM'
+      }
     ]
   }
 ];
@@ -245,7 +354,7 @@ export const INITIAL_SHOTS: Shot[] = [
     title: 'Observatory Ridge Sunrise',
     stage: 'Approved',
     priority: 'High',
-    assignedTo: 'user_alex',
+    assignedTo: 'valtea',
     startFrame: 1,
     endFrame: 96,
     durationSec: 4.0,
@@ -264,7 +373,7 @@ export const INITIAL_SHOTS: Shot[] = [
     title: 'Dome Shutter Awakening',
     stage: 'Composite',
     priority: 'Medium',
-    assignedTo: 'user_alex',
+    assignedTo: 'valtea',
     startFrame: 97,
     endFrame: 168,
     durationSec: 3.0,
@@ -283,7 +392,7 @@ export const INITIAL_SHOTS: Shot[] = [
     title: 'Aria Chronometer Check',
     stage: 'Color & FX',
     priority: 'High',
-    assignedTo: 'user_kenji',
+    assignedTo: 'maltea',
     startFrame: 169,
     endFrame: 252,
     durationSec: 3.5,
@@ -302,7 +411,7 @@ export const INITIAL_SHOTS: Shot[] = [
     title: 'Greenhouse Catwalk Walk',
     stage: 'Keyframe',
     priority: 'Critical',
-    assignedTo: 'user_kenji',
+    assignedTo: 'valtea',
     startFrame: 253,
     endFrame: 362,
     durationSec: 4.6,
@@ -321,7 +430,7 @@ export const INITIAL_SHOTS: Shot[] = [
     title: 'Lumina Bioluminescent Pulse',
     stage: 'In-Between',
     priority: 'Medium',
-    assignedTo: 'user_kenji',
+    assignedTo: 'valtea',
     startFrame: 363,
     endFrame: 430,
     durationSec: 2.8,
@@ -340,7 +449,7 @@ export const INITIAL_SHOTS: Shot[] = [
     title: 'Cog Lens Calibration',
     stage: 'Layout',
     priority: 'Medium',
-    assignedTo: 'user_leo',
+    assignedTo: 'biaktea',
     startFrame: 431,
     endFrame: 502,
     durationSec: 3.0,
@@ -359,7 +468,7 @@ export const INITIAL_SHOTS: Shot[] = [
     title: 'Gear Tower Tremor',
     stage: 'Script',
     priority: 'High',
-    assignedTo: 'user_sarah',
+    assignedTo: 'maltea',
     startFrame: 503,
     endFrame: 590,
     durationSec: 3.7,
@@ -455,7 +564,7 @@ export const INITIAL_RENDERS: RenderFile[] = [
     feedback: [
       {
         id: 'fb_01',
-        authorId: 'user_sarah',
+        authorId: 'maltea',
         timecodeSec: 1.5,
         comment: 'The morning mist density here is breathtaking. Approved for master reel.',
         isResolved: true,
@@ -482,7 +591,7 @@ export const INITIAL_RENDERS: RenderFile[] = [
     feedback: [
       {
         id: 'fb_02',
-        authorId: 'user_sarah',
+        authorId: 'maltea',
         timecodeSec: 1.8,
         comment: 'Lens flare on the brass shutter needs 15% less chromatic aberration.',
         isResolved: false,
@@ -490,7 +599,7 @@ export const INITIAL_RENDERS: RenderFile[] = [
       },
       {
         id: 'fb_03',
-        authorId: 'user_maya',
+        authorId: 'biaktea',
         timecodeSec: 2.2,
         comment: 'Syncing sound fx bang right when shutter latch catches.',
         isResolved: true,
@@ -517,7 +626,7 @@ export const INITIAL_RENDERS: RenderFile[] = [
     feedback: [
       {
         id: 'fb_04',
-        authorId: 'user_kenji',
+        authorId: 'valtea',
         timecodeSec: 3.2,
         comment: 'Still tweaking Cog\'s hind-leg anticipation weight.',
         isResolved: false,
@@ -531,37 +640,37 @@ export const INITIAL_CHAT_MESSAGES: ChatMessage[] = [
   {
     id: 'msg_01',
     projectId: 'proj_aura_01',
-    authorId: 'user_sarah',
-    message: 'Good morning studio team! Scene 01 lighting look is locked. Alex, that morning mist pass in SH01 is cinema-grade gold ✨',
+    authorId: 'maltea',
+    message: 'Chibai le team! Scene 01 lighting look hi a locked tawh e. Valtea, shot 01A mist pass kha a mawi hle mai ✨',
     createdAt: '09:15 AM'
   },
   {
     id: 'msg_02',
     projectId: 'proj_aura_01',
-    authorId: 'user_alex',
-    message: 'Thanks Sarah! The volumetric sunbeams calibrated nicely with the DCI 4K anamorphic crop.',
+    authorId: 'valtea',
+    message: 'Ka lawm e Maltea! DCI 4K anamorphic crop nen a inmil thlap e.',
     createdAt: '09:22 AM'
   },
   {
     id: 'msg_03',
     projectId: 'proj_aura_01',
-    authorId: 'user_kenji',
-    message: 'Pushing v02 keyframes for Cog\'s walking cycle on the catwalk (SC02_SH01). Check the anticipation timing when you get a minute.',
+    authorId: 'valtea',
+    message: 'Cog kal lai (SC02_SH01) keyframes v02 ka rawn push e. Anticipation timing kha lo en chhin teh u.',
     shotRefId: 'shot_04',
     createdAt: '10:04 AM'
   },
   {
     id: 'msg_04',
     projectId: 'proj_aura_01',
-    authorId: 'user_maya',
-    message: 'Just uploaded 3 voice takes for Aria\'s monologue and the new clockwork chime motifs. Elena\'s Take 03 is spot on.',
+    authorId: 'biaktea',
+    message: 'Scene 02 & 03 storyboard framing ka update zo chiah e, audio track nen pawh a inrem thlap ang.',
     createdAt: '11:40 AM'
   },
   {
     id: 'msg_05',
     projectId: 'proj_aura_01',
-    authorId: 'user_leo',
-    message: 'Working on thumbnails for Scene 03 gear tower jam. Adding high-tension vertigo angles looking down into the planetary gear train.',
+    authorId: 'maltea',
+    message: 'Screenplay Scene 01 ka lo approve tawh a, Valtea leh Biaktea khan lo approve ve ula project hi approve tlan ang aw.',
     createdAt: '12:15 PM'
   }
 ];

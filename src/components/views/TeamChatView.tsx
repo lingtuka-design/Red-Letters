@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import type { 
   ChatMessage, 
-  TeamMember, 
+  TeamMember,
+  UserAccount,
   Shot 
 } from '../../types';
 import { 
@@ -13,6 +14,7 @@ import {
 interface TeamChatViewProps {
   messages: ChatMessage[];
   team: TeamMember[];
+  currentUser: UserAccount;
   shots: Shot[];
   onSendMessage: (authorId: string, message: string, shotRefId?: string) => void;
   onSelectShot: (shot: Shot) => void;
@@ -21,6 +23,7 @@ interface TeamChatViewProps {
 export const TeamChatView: React.FC<TeamChatViewProps> = ({
   messages,
   team,
+  currentUser,
   shots,
   onSendMessage,
   onSelectShot
@@ -28,13 +31,11 @@ export const TeamChatView: React.FC<TeamChatViewProps> = ({
   const [inputText, setInputText] = useState('');
   const [selectedShotRef, setSelectedShotRef] = useState<string>('');
 
-  const currentMember = team[0]; // Sarah Vance (Director)
-
   const handleSend = (e: React.FormEvent) => {
     e.preventDefault();
     if (!inputText.trim()) return;
 
-    onSendMessage(currentMember.id, inputText.trim(), selectedShotRef || undefined);
+    onSendMessage(currentUser.id, inputText.trim(), selectedShotRef || undefined);
     setInputText('');
     setSelectedShotRef('');
   };
@@ -47,7 +48,7 @@ export const TeamChatView: React.FC<TeamChatViewProps> = ({
           <div className="flex items-center space-x-2">
             <Users className="w-5 h-5 text-amber-700" />
             <h2 className="font-serif text-base font-semibold text-stone-900">
-              Indie Team Room (5 Artists)
+              Indie Team Room (3 Artists)
             </h2>
           </div>
           <span className="text-xs font-mono px-2 py-0.5 rounded bg-emerald-50 text-emerald-800 border border-emerald-200">
@@ -57,7 +58,7 @@ export const TeamChatView: React.FC<TeamChatViewProps> = ({
 
         <div className="flex items-center space-x-2 text-xs text-stone-500">
           <span>Posting as:</span>
-          <strong className="text-stone-800">{currentMember.name} ({currentMember.role})</strong>
+          <strong className="text-stone-800">{currentUser.name} ({currentUser.role})</strong>
         </div>
       </div>
 
@@ -66,7 +67,7 @@ export const TeamChatView: React.FC<TeamChatViewProps> = ({
         {messages.map((msg) => {
           const author = team.find(m => m.id === msg.authorId);
           const referencedShot = msg.shotRefId ? shots.find(s => s.id === msg.shotRefId) : null;
-          const isCurrentUser = msg.authorId === currentMember.id;
+          const isCurrentUser = msg.authorId === currentUser.id;
 
           return (
             <div 
