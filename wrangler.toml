@@ -1,4 +1,4 @@
-name = "animation-studio-hub"
+name = "red-letters"
 compatibility_date = "2024-09-23"
 compatibility_flags = ["nodejs_compat"]
 pages_build_output_dir = "dist"
@@ -7,7 +7,7 @@ pages_build_output_dir = "dist"
 [[d1_databases]]
 binding = "DB"
 database_name = "animation-studio-db"
-database_id = "your-d1-database-id-here"
+database_id = "eeccad39-064f-41a0-9b8f-387d4ee7f73f"
 
 # Cloudflare R2 Storage binding for Storyboard assets and audio takes
 [[r2_buckets]]
