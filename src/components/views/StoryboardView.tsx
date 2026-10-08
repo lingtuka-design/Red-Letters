@@ -394,8 +394,8 @@ export const StoryboardView: React.FC<StoryboardViewProps> = ({
       </div>
 
       {/* 3. Editor Viewport (Single Continuous Document Page) */}
-      <div className="flex-1 overflow-y-auto p-2 sm:p-6 md:p-10 flex justify-center bg-[#fcfaf6]">
-        <div className="w-full max-w-4xl bg-white rounded-2xl shadow-sm border border-[#e9e3d8] p-4 sm:p-10 md:p-16 min-h-[500px] flex flex-col">
+      <div className="flex-1 overflow-y-auto p-2 sm:p-6 md:p-10 bg-[#fcfaf6]">
+        <div className="w-full max-w-4xl mx-auto bg-white rounded-2xl shadow-sm border border-[#e9e3d8] p-4 sm:p-10 md:p-16 min-h-[500px] h-auto">
           {/* Document Header info */}
           <div className="mb-6 pb-4 border-b border-dashed border-[#e9e3d8] flex flex-wrap items-center justify-between text-xs text-stone-400 gap-2">
             <div className="flex items-center space-x-2">
@@ -418,10 +418,11 @@ export const StoryboardView: React.FC<StoryboardViewProps> = ({
             contentEditable
             suppressContentEditableWarning
             onInput={handleEditorInput}
-            className="flex-1 outline-none text-stone-900 leading-relaxed font-sans text-sm md:text-base prose max-w-none focus:outline-none"
+            className="outline-none text-stone-900 leading-relaxed font-sans text-sm md:text-base prose max-w-none focus:outline-none min-h-[500px] h-auto break-words"
             style={{
-              minHeight: '650px',
-              lineHeight: 1.7
+              lineHeight: 1.7,
+              overflowWrap: 'break-word',
+              wordBreak: 'break-word'
             }}
           />
 

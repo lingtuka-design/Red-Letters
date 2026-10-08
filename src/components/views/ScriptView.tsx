@@ -549,10 +549,10 @@ export const ScriptView: React.FC<ScriptViewProps> = ({
       </div>
 
       {/* 3. Screenplay Page Canvas & Scene Comments */}
-      <div className="flex-1 overflow-y-auto p-3 sm:p-6 md:p-10 flex flex-col items-center space-y-6">
+      <div className="flex-1 overflow-y-auto p-3 sm:p-6 md:p-10">
         {currentScene ? (
-          <>
-            <div className="w-full max-w-3xl bg-white border border-[#e9e3d8] rounded-2xl shadow-sm p-4 sm:p-8 md:p-14 font-mono text-xs sm:text-sm leading-relaxed text-stone-800 flex flex-col min-h-[500px]">
+          <div className="max-w-3xl mx-auto space-y-6">
+            <div className="w-full bg-white border border-[#e9e3d8] rounded-2xl shadow-sm p-4 sm:p-8 md:p-14 font-mono text-xs sm:text-sm leading-relaxed text-stone-800 min-h-[500px] h-auto">
               {/* Page Header (Editable Slugline & Synopsis) */}
               <div className="pb-6 mb-6 border-b border-[#e9e3d8]/80 space-y-2">
                 <div className="flex items-center justify-between">
@@ -589,15 +589,17 @@ export const ScriptView: React.FC<ScriptViewProps> = ({
                 contentEditable
                 onInput={handleEditorInput}
                 suppressContentEditableWarning
-                className="flex-1 focus:outline-none min-h-[400px] space-y-3 cursor-text font-mono text-sm leading-relaxed text-stone-800"
+                className="focus:outline-none min-h-[400px] h-auto space-y-3 cursor-text font-mono text-sm leading-relaxed text-stone-800 break-words"
                 style={{
-                  fontFamily: "'JetBrains Mono', Courier, monospace"
+                  fontFamily: "'JetBrains Mono', Courier, monospace",
+                  overflowWrap: 'break-word',
+                  wordBreak: 'break-word'
                 }}
               />
             </div>
 
             {/* 4. Scene Discussion & Feedback Section (Maltea, Valtea, Biaktea) */}
-            <div className="w-full max-w-3xl bg-white border border-[#e9e3d8] rounded-2xl shadow-xs p-6 space-y-5">
+            <div className="w-full bg-white border border-[#e9e3d8] rounded-2xl shadow-xs p-6 space-y-5">
               <div className="flex items-center justify-between pb-3 border-b border-[#e9e3d8]">
                 <div className="flex items-center space-x-2">
                   <div className="p-1.5 rounded-lg bg-amber-50 text-amber-700 border border-amber-200/60">
@@ -702,7 +704,7 @@ export const ScriptView: React.FC<ScriptViewProps> = ({
                 )}
               </div>
             </div>
-          </>
+          </div>
         ) : (
           <div className="text-stone-400 text-xs">No scene selected.</div>
         )}
