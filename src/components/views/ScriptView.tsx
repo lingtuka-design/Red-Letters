@@ -224,10 +224,11 @@ export const ScriptView: React.FC<ScriptViewProps> = ({
           {scenes.length > 1 && (
             <button
               onClick={handleDeleteScene}
-              className="p-1.5 text-stone-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
-              title="Delete Scene"
+              className="inline-flex items-center space-x-1.5 px-2.5 py-1.5 rounded-lg border border-red-200 bg-red-50/60 hover:bg-red-100 text-red-600 hover:text-red-700 text-xs font-medium transition-colors cursor-pointer shadow-2xs"
+              title={`Delete Scene ${currentScene.sceneNumber}`}
             >
-              <Trash2 className="w-4 h-4" />
+              <Trash2 className="w-3.5 h-3.5" />
+              <span>Delete Scene</span>
             </button>
           )}
         </div>

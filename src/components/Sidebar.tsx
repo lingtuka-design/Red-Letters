@@ -4,7 +4,8 @@ import {
   MessageSquare, 
   Film, 
   Plus, 
-  Users
+  Users,
+  Trash2
 } from 'lucide-react';
 import type { MainNavigation, Project, TeamMember } from '../types';
 
@@ -17,6 +18,7 @@ interface SidebarProps {
   onSelectTeamChat: () => void;
   onSelectProject: (projectId: string) => void;
   onOpenNewProject: () => void;
+  onDeleteProject: (projectId: string) => void;
   unreadCount?: number;
 }
 
@@ -29,6 +31,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onSelectTeamChat,
   onSelectProject,
   onOpenNewProject,
+  onDeleteProject,
   unreadCount = 2
 }) => {
   return (
@@ -118,14 +121,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
               const isSelected = currentNav === 'project' && selectedProjectId === proj.id;
 
               return (
-                <button
+                <div
                   key={proj.id}
-                  onClick={() => onSelectProject(proj.id)}
                   className={`w-full text-left p-2.5 rounded-xl transition-all group flex items-start space-x-3 cursor-pointer ${
                     isSelected
                       ? 'bg-white border border-amber-300 ring-2 ring-amber-100/60 shadow-xs'
                       : 'border border-transparent hover:bg-white/80 hover:border-[#e9e3d8]'
                   }`}
+                  onClick={() => onSelectProject(proj.id)}
                 >
                   <div className="relative mt-0.5 shrink-0">
                     {proj.coverImage ? (
@@ -151,6 +154,23 @@ export const Sidebar: React.FC<SidebarProps> = ({
                       }`}>
                         {proj.title}
                       </p>
+
+                      {/* Project Delete Button */}
+                      {projects.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (window.confirm(`Delete project "${proj.title}"?`)) {
+                              onDeleteProject(proj.id);
+                            }
+                          }}
+                          className="opacity-0 group-hover:opacity-100 p-1 text-stone-400 hover:text-red-600 hover:bg-red-50 rounded transition-all ml-1 shrink-0"
+                          title={`Delete ${proj.title}`}
+                        >
+                          <Trash2 className="w-3 h-3" />
+                        </button>
+                      )}
                     </div>
 
                     <div className="flex items-center space-x-2 mt-1">
@@ -166,7 +186,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                       </span>
                     </div>
                   </div>
-                </button>
+                </div>
               );
             })}
           </div>

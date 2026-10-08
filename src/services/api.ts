@@ -77,6 +77,13 @@ export const StudioApi = {
     return created;
   },
 
+  async deleteProject(projectId: string): Promise<Project[]> {
+    const projects = await this.getProjects();
+    const updated = projects.filter(p => p.id !== projectId);
+    setLocal(STORAGE_KEYS.PROJECTS, updated);
+    return updated;
+  },
+
   // Team
   async getTeam(): Promise<TeamMember[]> {
     return getLocal<TeamMember[]>(STORAGE_KEYS.TEAM, INITIAL_TEAM);

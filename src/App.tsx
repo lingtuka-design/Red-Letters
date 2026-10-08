@@ -100,6 +100,18 @@ export function App() {
     setActiveModule('hub');
   };
 
+  const handleDeleteProject = async (projectId: string) => {
+    const updated = await StudioApi.deleteProject(projectId);
+    setProjects(updated);
+    if (selectedProjectId === projectId) {
+      if (updated.length > 0) {
+        setSelectedProjectId(updated[0].id);
+      } else {
+        setCurrentNav('studio_overview');
+      }
+    }
+  };
+
   const handleUpdateStage = async (shotId: string, stage: ProductionStage) => {
     await StudioApi.updateShotStage(shotId, stage);
     const updated = await StudioApi.getShots();
@@ -198,6 +210,7 @@ export function App() {
           onSelectTeamChat={() => setCurrentNav('team_chat')}
           onSelectProject={handleSelectProject}
           onOpenNewProject={() => setIsNewProjectModalOpen(true)}
+          onDeleteProject={handleDeleteProject}
         />
 
         {/* Center Panel: Active Workspace Canvas */}
