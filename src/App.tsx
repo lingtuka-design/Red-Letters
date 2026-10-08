@@ -30,6 +30,7 @@ import { TeamChatView } from './components/views/TeamChatView';
 // Modals
 import { NewShotModal } from './components/Modals/NewShotModal';
 import { ExportModal } from './components/Modals/ExportModal';
+import { NewProjectModal } from './components/Modals/NewProjectModal';
 
 export function App() {
   const [currentNav, setCurrentNav] = useState<MainNavigation>('project');
@@ -52,6 +53,7 @@ export function App() {
   // Modals
   const [isNewShotModalOpen, setIsNewShotModalOpen] = useState(false);
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
+  const [isNewProjectModalOpen, setIsNewProjectModalOpen] = useState(false);
 
   // Load initial data
   useEffect(() => {
@@ -89,6 +91,15 @@ export function App() {
   const activeProject = projects.find(p => p.id === selectedProjectId) || projects[0];
 
   // Handlers
+  const handleAddProject = async (newProjData: Omit<Project, 'id'>) => {
+    const created = await StudioApi.addProject(newProjData);
+    const updated = await StudioApi.getProjects();
+    setProjects(updated);
+    setSelectedProjectId(created.id);
+    setCurrentNav('project');
+    setActiveModule('hub');
+  };
+
   const handleUpdateStage = async (shotId: string, stage: ProductionStage) => {
     await StudioApi.updateShotStage(shotId, stage);
     const updated = await StudioApi.getShots();
@@ -186,6 +197,7 @@ export function App() {
           onSelectStudioOverview={() => setCurrentNav('studio_overview')}
           onSelectTeamChat={() => setCurrentNav('team_chat')}
           onSelectProject={handleSelectProject}
+          onOpenNewProject={() => setIsNewProjectModalOpen(true)}
         />
 
         {/* Center Panel: Active Workspace Canvas */}
@@ -299,6 +311,13 @@ export function App() {
           <span>Open Inspector</span>
         </button>
       )}
+
+      {/* New Project Modal */}
+      <NewProjectModal
+        isOpen={isNewProjectModalOpen}
+        onClose={() => setIsNewProjectModalOpen(false)}
+        onAddProject={handleAddProject}
+      />
 
       {/* New Shot Modal */}
       <NewShotModal

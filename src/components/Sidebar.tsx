@@ -16,7 +16,7 @@ interface SidebarProps {
   onSelectStudioOverview: () => void;
   onSelectTeamChat: () => void;
   onSelectProject: (projectId: string) => void;
-  onOpenNewProject?: () => void;
+  onOpenNewProject: () => void;
   unreadCount?: number;
 }
 
@@ -95,23 +95,24 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </button>
         </div>
 
-        {/* Middle Section: Projects List (Intlar thla) */}
+        {/* Middle Section: Projects List (Intlar thla) with Create Project button */}
         <div>
           <div className="px-2 mb-2 flex items-center justify-between">
             <span className="text-[10px] font-bold uppercase tracking-wider text-stone-400">
               Film Projects ({projects.length})
             </span>
-            {onOpenNewProject && (
-              <button
-                onClick={onOpenNewProject}
-                className="p-1 rounded hover:bg-stone-200/60 text-stone-400 hover:text-stone-700 transition-colors"
-                title="Create New Film Project"
-              >
-                <Plus className="w-3.5 h-3.5" />
-              </button>
-            )}
           </div>
 
+          {/* Dedicated "Create Project" Button right above the projects */}
+          <button
+            onClick={onOpenNewProject}
+            className="w-full mb-3 py-2 px-3 rounded-xl border border-dashed border-amber-300 bg-amber-50/70 hover:bg-amber-100/80 hover:border-amber-400 text-amber-900 text-xs font-semibold flex items-center justify-center space-x-2 transition-all shadow-2xs group cursor-pointer"
+          >
+            <Plus className="w-3.5 h-3.5 text-amber-700 group-hover:scale-110 transition-transform stroke-[2.5]" />
+            <span>Create Project</span>
+          </button>
+
+          {/* Projects vertical list */}
           <div className="space-y-1.5">
             {projects.map((proj) => {
               const isSelected = currentNav === 'project' && selectedProjectId === proj.id;
@@ -120,7 +121,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 <button
                   key={proj.id}
                   onClick={() => onSelectProject(proj.id)}
-                  className={`w-full text-left p-2.5 rounded-xl transition-all group flex items-start space-x-3 ${
+                  className={`w-full text-left p-2.5 rounded-xl transition-all group flex items-start space-x-3 cursor-pointer ${
                     isSelected
                       ? 'bg-white border border-amber-300 ring-2 ring-amber-100/60 shadow-xs'
                       : 'border border-transparent hover:bg-white/80 hover:border-[#e9e3d8]'
