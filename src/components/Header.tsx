@@ -8,7 +8,8 @@ import {
   Layers,
   ChevronLeft,
   ChevronRight,
-  Menu
+  Menu,
+  LogOut
 } from 'lucide-react';
 import type { Project, TeamMember, UserAccount, Shot, MainNavigation, ProjectModule } from '../types';
 
@@ -20,6 +21,7 @@ interface HeaderProps {
   shots: Shot[];
   currentUser: UserAccount;
   onOpenLogin: () => void;
+  onLogout?: () => void;
   onOpenNewShot: () => void;
   onOpenExport: () => void;
   onBackToProjectHub: () => void;
@@ -35,6 +37,7 @@ export const Header: React.FC<HeaderProps> = ({
   shots,
   currentUser,
   onOpenLogin,
+  onLogout,
   onOpenNewShot,
   onOpenExport,
   onBackToProjectHub,
@@ -188,6 +191,18 @@ export const Header: React.FC<HeaderProps> = ({
             </div>
           </div>
         </button>
+
+        {/* Studio Logout Button */}
+        {onLogout && (
+          <button
+            onClick={onLogout}
+            className="flex items-center space-x-1 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-xl border border-[#e9e3d8] bg-white hover:bg-red-50 hover:border-red-200 hover:text-red-700 text-stone-600 transition-all text-xs font-medium cursor-pointer shadow-2xs group"
+            title="Log out of Red Letters Studio (Studio chhuahsan rawh)"
+          >
+            <LogOut className="w-3.5 h-3.5 text-stone-400 group-hover:text-red-600" />
+            <span className="text-[11px] sm:text-xs font-semibold">Logout</span>
+          </button>
+        )}
 
         {/* Indie Team Stack (3 Members) */}
         <div className="hidden lg:flex items-center -space-x-2 hover:space-x-1 transition-all duration-200 p-1 rounded-full bg-[#fcfaf6] border border-[#e9e3d8]/80">

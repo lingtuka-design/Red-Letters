@@ -27,11 +27,12 @@ import { AudioLabView } from './components/views/AudioLabView';
 import { RendersView } from './components/views/RendersView';
 import { TeamChatView } from './components/views/TeamChatView';
 
-// Modals
+// Modals & Auth
 import { NewShotModal } from './components/Modals/NewShotModal';
 import { ExportModal } from './components/Modals/ExportModal';
 import { NewProjectModal } from './components/Modals/NewProjectModal';
 import { LoginModal } from './components/Modals/LoginModal';
+import { LoginPage } from './components/Auth/LoginPage';
 
 export function App() {
   const [currentNav, setCurrentNav] = useState<MainNavigation>('project');
@@ -57,8 +58,8 @@ export function App() {
   const [isNewProjectModalOpen, setIsNewProjectModalOpen] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
-  // Authenticated Artist Account (Default: maltea)
-  const [currentUser, setCurrentUser] = useState<UserAccount>(() => StudioApi.getCurrentUser());
+  // Authenticated Artist Account
+  const [currentUser, setCurrentUser] = useState<UserAccount | null>(() => StudioApi.getCurrentUser());
 
   // Load initial data
   useEffect(() => {
@@ -120,12 +121,18 @@ export function App() {
     setCurrentUser(user);
   };
 
+  const handleLogout = () => {
+    StudioApi.logout();
+    setCurrentUser(null);
+  };
+
   const handleToggleScriptApproval = async (projectId: string, userId: 'maltea' | 'valtea' | 'biaktea') => {
     const updated = await StudioApi.toggleScriptApproval(projectId, userId);
     setProjects(updated);
   };
 
   const handleAddSceneComment = async (sceneId: string, commentText: string) => {
+    if (!currentUser) return;
     const updated = await StudioApi.addSceneComment(sceneId, commentText, currentUser);
     setScenes(updated);
   };
@@ -194,6 +201,10 @@ export function App() {
     setActiveModule('hub');
   };
 
+  if (!currentUser) {
+    return <LoginPage onLogin={handleLogin} />;
+  }
+
   if (!activeProject) {
     return (
       <div className="h-screen w-screen flex items-center justify-center bg-[#fcfaf6]">
@@ -216,6 +227,7 @@ export function App() {
         shots={shots}
         currentUser={currentUser}
         onOpenLogin={() => setIsLoginModalOpen(true)}
+        onLogout={handleLogout}
         onOpenNewShot={() => setIsNewShotModalOpen(true)}
         onOpenExport={() => setIsExportModalOpen(true)}
         onBackToProjectHub={() => setActiveModule('hub')}
@@ -395,6 +407,7 @@ export function App() {
         currentUser={currentUser}
         onClose={() => setIsLoginModalOpen(false)}
         onLogin={handleLogin}
+        onLogout={handleLogout}
       />
     </div>
   );

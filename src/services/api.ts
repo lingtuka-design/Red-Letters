@@ -23,7 +23,7 @@ import {
 } from '../data/mockData';
 
 // Cache invalidation
-const CURRENT_VERSION = 'v4_storyboard_text';
+const CURRENT_VERSION = 'v5_login_landing';
 if (typeof window !== 'undefined') {
   try {
     if (localStorage.getItem('aura_version') !== CURRENT_VERSION) {
@@ -116,12 +116,24 @@ export const StudioApi = {
   },
 
   // User Authentication & Session
-  getCurrentUser(): UserAccount {
-    return getLocal<UserAccount>(STORAGE_KEYS.CURRENT_USER, USER_ACCOUNTS[0]);
+  getCurrentUser(): UserAccount | null {
+    return getLocal<UserAccount | null>(STORAGE_KEYS.CURRENT_USER, null);
   },
 
-  setCurrentUser(user: UserAccount): void {
-    setLocal(STORAGE_KEYS.CURRENT_USER, user);
+  setCurrentUser(user: UserAccount | null): void {
+    if (user) {
+      setLocal(STORAGE_KEYS.CURRENT_USER, user);
+    } else {
+      try {
+        localStorage.removeItem(STORAGE_KEYS.CURRENT_USER);
+      } catch {}
+    }
+  },
+
+  logout(): void {
+    try {
+      localStorage.removeItem(STORAGE_KEYS.CURRENT_USER);
+    } catch {}
   },
 
   getUserAccounts(): UserAccount[] {

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Lock, User, LogIn } from 'lucide-react';
+import { X, Lock, User, LogIn, LogOut } from 'lucide-react';
 import type { UserAccount } from '../../types';
 import { USER_ACCOUNTS } from '../../data/mockData';
 
@@ -8,13 +8,15 @@ interface LoginModalProps {
   currentUser: UserAccount;
   onClose: () => void;
   onLogin: (user: UserAccount) => void;
+  onLogout?: () => void;
 }
 
 export const LoginModal: React.FC<LoginModalProps> = ({
   isOpen,
   currentUser,
   onClose,
-  onLogin
+  onLogin,
+  onLogout
 }) => {
   if (!isOpen) return null;
 
@@ -176,21 +178,37 @@ export const LoginModal: React.FC<LoginModalProps> = ({
             </div>
           )}
 
-          <div className="pt-2 flex justify-end space-x-2">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 text-xs text-stone-600 hover:bg-stone-100 rounded-xl cursor-pointer"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="inline-flex items-center space-x-1.5 px-5 py-2 text-xs font-medium text-white bg-amber-600 hover:bg-amber-700 rounded-xl shadow-xs transition-colors cursor-pointer"
-            >
-              <LogIn className="w-3.5 h-3.5" />
-              <span>Log In</span>
-            </button>
+          <div className="pt-2 flex items-center justify-between">
+            {onLogout ? (
+              <button
+                type="button"
+                onClick={() => {
+                  onLogout();
+                  onClose();
+                }}
+                className="inline-flex items-center space-x-1.5 px-3 py-2 text-xs text-red-600 hover:bg-red-50 hover:border-red-200 border border-transparent rounded-xl cursor-pointer transition-colors"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+                <span>Log Out</span>
+              </button>
+            ) : <div />}
+
+            <div className="flex space-x-2">
+              <button
+                type="button"
+                onClick={onClose}
+                className="px-4 py-2 text-xs text-stone-600 hover:bg-stone-100 rounded-xl cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="inline-flex items-center space-x-1.5 px-5 py-2 text-xs font-medium text-white bg-amber-600 hover:bg-amber-700 rounded-xl shadow-xs transition-colors cursor-pointer"
+              >
+                <LogIn className="w-3.5 h-3.5" />
+                <span>Log In</span>
+              </button>
+            </div>
           </div>
         </form>
       </div>
