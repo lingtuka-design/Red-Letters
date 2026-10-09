@@ -15,7 +15,6 @@ import type {
 import { StudioApi } from './services/api';
 import { Header } from './components/Header';
 import { Sidebar } from './components/Sidebar';
-import { Inspector } from './components/Inspector';
 
 // Views
 import { OverviewView } from './components/views/OverviewView';
@@ -47,9 +46,8 @@ export function App() {
   const [renders, setRenders] = useState<RenderFile[]>([]);
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   
-  // Selected context for Right Panel Inspector
+  // Selected shot context
   const [selectedShot, setSelectedShot] = useState<Shot | null>(null);
-  const [isInspectorOpen, setIsInspectorOpen] = useState(() => typeof window !== 'undefined' ? window.innerWidth >= 1280 : false);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
   // Modals
@@ -222,7 +220,6 @@ export function App() {
 
   const handleSelectShot = (shot: Shot) => {
     setSelectedShot(shot);
-    setIsInspectorOpen(true);
   };
 
   const handleSelectProject = (projectId: string) => {
@@ -389,28 +386,7 @@ export function App() {
             </>
           )}
         </main>
-
-        {/* Right Panel: Context Inspector */}
-        {isInspectorOpen && (
-          <Inspector
-            selectedShot={selectedShot}
-            onClose={() => setIsInspectorOpen(false)}
-            team={team}
-            onUpdateStage={handleUpdateStage}
-            fps={activeProject.fps}
-          />
-        )}
       </div>
-
-      {/* Floating Inspector Toggle when collapsed */}
-      {!isInspectorOpen && (
-        <button
-          onClick={() => setIsInspectorOpen(true)}
-          className="fixed bottom-6 right-6 px-3.5 py-2 rounded-xl bg-white border border-[#e9e3d8] hover:bg-[#f6efe3] shadow-md text-xs font-medium text-stone-700 flex items-center space-x-1.5 transition-all z-30"
-        >
-          <span>Open Inspector</span>
-        </button>
-      )}
 
       {/* New Project Modal */}
       <NewProjectModal
