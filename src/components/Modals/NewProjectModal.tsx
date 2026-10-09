@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { 
   X, 
-  Film 
+  Film,
+  Upload
 } from 'lucide-react';
 import type { Project, UserAccount } from '../../types';
 
@@ -20,6 +21,9 @@ export const NewProjectModal: React.FC<NewProjectModalProps> = ({
 }) => {
   if (!isOpen) return null;
 
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [uploadedFileName, setUploadedFileName] = useState('');
+
   const [title, setTitle] = useState('');
   const [synopsis, setSynopsis] = useState('');
   const [fps, setFps] = useState(24);
@@ -36,6 +40,20 @@ export const NewProjectModal: React.FC<NewProjectModalProps> = ({
     'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?w=600&auto=format&fit=crop&q=80',
     'https://images.unsplash.com/photo-1507668077129-56e32842fceb?w=600&auto=format&fit=crop&q=80'
   ];
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setUploadedFileName(file.name);
+      const reader = new FileReader();
+      reader.onload = () => {
+        if (typeof reader.result === 'string') {
+          setCoverImage(reader.result);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -224,29 +242,90 @@ export const NewProjectModal: React.FC<NewProjectModalProps> = ({
             </div>
           </div>
 
-          {/* Cover Image Presets */}
+          {/* Concept Poster Art */}
           <div>
-            <label className="text-xs font-semibold text-stone-700 block mb-1.5">
-              Concept Poster Art
-            </label>
-            <div className="grid grid-cols-4 gap-2 mb-2">
-              {sampleCovers.map((img, idx) => (
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="text-xs font-semibold text-stone-700 block">
+                Concept Poster Art
+              </label>
+              {uploadedFileName && (
+                <span className="text-[10px] text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                  ✓ Uploaded: {uploadedFileName}
+                </span>
+              )}
+            </div>
+
+            {/* Poster Preview and Upload Box */}
+            <div className="flex flex-col sm:flex-row gap-3 p-3 rounded-2xl bg-[#fcfaf6] border border-[#e9e3d8] mb-2.5">
+              <div className="w-full sm:w-44 aspect-video rounded-xl overflow-hidden bg-stone-900 border border-stone-200 shrink-0 relative group">
+                <img 
+                  src={coverImage} 
+                  alt="Poster preview" 
+                  className="w-full h-full object-cover" 
+                />
                 <button
                   type="button"
-                  key={idx}
-                  onClick={() => setCoverImage(img)}
-                  className={`aspect-video rounded-lg overflow-hidden border-2 transition-all cursor-pointer ${
-                    coverImage === img ? 'border-amber-600 ring-2 ring-amber-200' : 'border-stone-200 opacity-70 hover:opacity-100'
-                  }`}
+                  onClick={() => fileInputRef.current?.click()}
+                  className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white text-xs font-medium transition-opacity cursor-pointer"
                 >
-                  <img src={img} alt="preset" className="w-full h-full object-cover" />
+                  Change
                 </button>
-              ))}
+              </div>
+
+              <div className="flex-1 flex flex-col justify-between space-y-2">
+                <div>
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    onChange={handleImageUpload}
+                    accept="image/*"
+                    className="hidden"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="w-full py-2 px-3 rounded-xl border border-dashed border-amber-300 bg-white hover:bg-amber-50 text-amber-800 text-xs font-medium flex items-center justify-center space-x-1.5 transition-colors cursor-pointer"
+                  >
+                    <Upload className="w-3.5 h-3.5" />
+                    <span>Upload Poster Picture</span>
+                  </button>
+                  <p className="text-[11px] text-stone-400 mt-1">
+                    Device (phone/computer) atanga picture thlan theih
+                  </p>
+                </div>
+
+                {/* Sample Presets */}
+                <div>
+                  <span className="text-[10px] text-stone-400 block mb-1">Emaw sample poster thlang rawh:</span>
+                  <div className="grid grid-cols-4 gap-1.5">
+                    {sampleCovers.map((img, idx) => (
+                      <button
+                        type="button"
+                        key={idx}
+                        onClick={() => {
+                          setCoverImage(img);
+                          setUploadedFileName('');
+                        }}
+                        className={`aspect-video rounded-lg overflow-hidden border transition-all cursor-pointer ${
+                          coverImage === img ? 'border-amber-600 ring-2 ring-amber-200' : 'border-stone-200 opacity-60 hover:opacity-100'
+                        }`}
+                      >
+                        <img src={img} alt="preset" className="w-full h-full object-cover" />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
             </div>
+
+            {/* Direct URL input fallback */}
             <input
               type="url"
-              value={coverImage}
-              onChange={(e) => setCoverImage(e.target.value)}
+              value={coverImage.startsWith('data:') ? '' : coverImage}
+              onChange={(e) => {
+                setCoverImage(e.target.value);
+                setUploadedFileName('');
+              }}
               placeholder="Or paste artwork URL..."
               className="w-full px-3 py-1.5 text-xs rounded-xl border border-[#e9e3d8] bg-[#fcfaf6] font-mono text-stone-600"
             />
